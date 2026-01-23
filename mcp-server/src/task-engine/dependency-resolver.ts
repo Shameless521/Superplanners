@@ -79,3 +79,37 @@ export function getTaskDependencies(tasks: Task[], taskId: string): string[] {
   const task = tasks.find((t) => t.id === taskId);
   return task?.dependencies ?? [];
 }
+
+/**
+ * 检查任务的所有依赖是否已完成
+ * @param tasks 任务列表
+ * @param taskId 任务ID
+ * @returns 如果所有依赖都已完成则返回 true
+ */
+export function areDependenciesMet(tasks: Task[], taskId: string): boolean {
+  const dependencies = getTaskDependencies(tasks, taskId);
+
+  if (dependencies.length === 0) {
+    return true;
+  }
+
+  return dependencies.every((depId) => {
+    const depTask = tasks.find((t) => t.id === depId);
+    return depTask?.status === 'completed';
+  });
+}
+
+/**
+ * 获取未完成的依赖列表
+ * @param tasks 任务列表
+ * @param taskId 任务ID
+ * @returns 未完成的依赖任务ID列表
+ */
+export function getUnmetDependencies(tasks: Task[], taskId: string): string[] {
+  const dependencies = getTaskDependencies(tasks, taskId);
+
+  return dependencies.filter((depId) => {
+    const depTask = tasks.find((t) => t.id === depId);
+    return depTask?.status !== 'completed';
+  });
+}

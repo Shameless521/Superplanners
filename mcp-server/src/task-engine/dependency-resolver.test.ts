@@ -109,3 +109,51 @@ describe('Dependency Resolver', () => {
     });
   });
 });
+
+import { areDependenciesMet, getUnmetDependencies } from './dependency-resolver.js';
+
+describe('Dependency Completion Check', () => {
+  const tasks: Task[] = [
+    { id: '1', title: '任务1', status: 'completed', priority: 'high' },
+    { id: '2', title: '任务2', status: 'in_progress', priority: 'high' },
+    {
+      id: '3',
+      title: '任务3',
+      status: 'pending',
+      priority: 'high',
+      dependencies: ['1'],
+    },
+    {
+      id: '4',
+      title: '任务4',
+      status: 'pending',
+      priority: 'high',
+      dependencies: ['1', '2'],
+    },
+  ];
+
+  describe('areDependenciesMet', () => {
+    it('should return true when all dependencies completed', () => {
+      expect(areDependenciesMet(tasks, '3')).toBe(true);
+    });
+
+    it('should return false when some dependencies not completed', () => {
+      expect(areDependenciesMet(tasks, '4')).toBe(false);
+    });
+
+    it('should return true for task without dependencies', () => {
+      expect(areDependenciesMet(tasks, '1')).toBe(true);
+    });
+  });
+
+  describe('getUnmetDependencies', () => {
+    it('should return empty array when all met', () => {
+      expect(getUnmetDependencies(tasks, '3')).toEqual([]);
+    });
+
+    it('should return unmet dependency IDs', () => {
+      const unmet = getUnmetDependencies(tasks, '4');
+      expect(unmet).toEqual(['2']);
+    });
+  });
+});
