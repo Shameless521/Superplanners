@@ -30,3 +30,35 @@ export type TaskStatus = z.infer<typeof TaskStatusSchema>;
  */
 export const TaskPrioritySchema = z.enum(['critical', 'high', 'medium', 'low']);
 export type TaskPriority = z.infer<typeof TaskPrioritySchema>;
+
+// ============================================
+// SubTask 数据结构
+// ============================================
+
+export const SubTaskSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  status: TaskStatusSchema,
+  notes: z.string().optional(),
+});
+export type SubTask = z.infer<typeof SubTaskSchema>;
+
+// ============================================
+// Task 数据结构
+// ============================================
+
+export const TaskSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  status: TaskStatusSchema,
+  priority: TaskPrioritySchema,
+  estimate: z.string().optional(),
+  actual: z.string().optional(),
+  dependencies: z.array(z.string()).optional(),
+  subtasks: z.array(SubTaskSchema).optional(),
+  notes: z.string().optional(),
+  started_at: z.string().datetime().optional(),
+  completed_at: z.string().datetime().optional(),
+});
+export type Task = z.infer<typeof TaskSchema>;
