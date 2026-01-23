@@ -62,3 +62,31 @@ export const TaskSchema = z.object({
   completed_at: z.string().datetime().optional(),
 });
 export type Task = z.infer<typeof TaskSchema>;
+
+// ============================================
+// ProjectMeta 数据结构
+// ============================================
+
+export const ProjectMetaSchema = z.object({
+  project: z.string().min(1),
+  project_id: z.string().min(1),
+  created: z.string().datetime(),
+  updated: z.string().datetime(),
+  version: z.number().int().positive(),
+  description: z.string().optional(),
+});
+export type ProjectMeta = z.infer<typeof ProjectMetaSchema>;
+
+// ============================================
+// TaskSummary 数据结构（实时计算，不存储）
+// ============================================
+
+export const TaskSummarySchema = z.object({
+  total: z.number().int().nonnegative(),
+  completed: z.number().int().nonnegative(),
+  in_progress: z.number().int().nonnegative(),
+  blocked: z.number().int().nonnegative(),
+  pending: z.number().int().nonnegative(),
+  skipped: z.number().int().nonnegative(),
+});
+export type TaskSummary = z.infer<typeof TaskSummarySchema>;

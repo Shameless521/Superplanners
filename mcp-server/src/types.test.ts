@@ -93,3 +93,56 @@ describe('Task', () => {
     expect(result.subtasks).toHaveLength(2);
   });
 });
+
+import { ProjectMetaSchema, TaskSummarySchema } from './types.js';
+
+describe('ProjectMeta', () => {
+  it('should accept valid project meta', () => {
+    const meta = {
+      project: '用户登录功能',
+      project_id: 'user-login',
+      created: '2025-01-23T10:00:00Z',
+      updated: '2025-01-23T10:30:00Z',
+      version: 1,
+    };
+    expect(ProjectMetaSchema.parse(meta)).toEqual(meta);
+  });
+
+  it('should accept project meta with description', () => {
+    const meta = {
+      project: '用户登录功能',
+      project_id: 'user-login',
+      created: '2025-01-23T10:00:00Z',
+      updated: '2025-01-23T10:30:00Z',
+      version: 1,
+      description: '开发完整的用户登录功能',
+    };
+    expect(ProjectMetaSchema.parse(meta)).toEqual(meta);
+  });
+});
+
+describe('TaskSummary', () => {
+  it('should accept valid task summary', () => {
+    const summary = {
+      total: 12,
+      completed: 3,
+      in_progress: 1,
+      blocked: 0,
+      pending: 8,
+      skipped: 0,
+    };
+    expect(TaskSummarySchema.parse(summary)).toEqual(summary);
+  });
+
+  it('should reject negative numbers', () => {
+    const summary = {
+      total: -1,
+      completed: 0,
+      in_progress: 0,
+      blocked: 0,
+      pending: 0,
+      skipped: 0,
+    };
+    expect(() => TaskSummarySchema.parse(summary)).toThrow();
+  });
+});
