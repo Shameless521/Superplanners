@@ -276,3 +276,86 @@ describe('MCP Tool Input Schemas', () => {
     });
   });
 });
+
+import {
+  PlanOutputSchema,
+  StatusGlobalOutputSchema,
+  StatusProjectOutputSchema,
+  UpdateOutputSchema,
+} from './types.js';
+
+describe('MCP Tool Output Schemas', () => {
+  describe('PlanOutput', () => {
+    it('should accept valid plan output', () => {
+      const output = {
+        success: true,
+        project_id: 'user-login',
+        project_name: '用户登录功能',
+        summary: {
+          total_tasks: 12,
+          total_estimate: '24h',
+        },
+        files: {
+          index_yaml: 'tasks/task-plan.yaml',
+          index_md: 'tasks/task-plan.md',
+          project_yaml: 'tasks/user-login/tasks.yaml',
+          project_md: 'tasks/user-login/tasks.md',
+        },
+        next_task: {
+          id: '1',
+          title: '后端 API 开发',
+        },
+      };
+      expect(PlanOutputSchema.parse(output).success).toBe(true);
+    });
+  });
+
+  describe('StatusGlobalOutput', () => {
+    it('should accept valid global status output', () => {
+      const output = {
+        success: true,
+        total_projects: 2,
+        projects: [
+          {
+            id: 'user-login',
+            name: '用户登录功能',
+            status: 'active',
+            progress: '3/12',
+            updated: '2025-01-23T10:30:00Z',
+          },
+        ],
+      };
+      expect(StatusGlobalOutputSchema.parse(output).success).toBe(true);
+    });
+  });
+
+  describe('UpdateOutput', () => {
+    it('should accept valid update output', () => {
+      const output = {
+        success: true,
+        updated: {
+          task_id: '1.1',
+          status: 'completed',
+        },
+        summary: {
+          total: 12,
+          completed: 4,
+          in_progress: 1,
+          blocked: 0,
+          pending: 7,
+          skipped: 0,
+        },
+        progress: {
+          completed: 4,
+          total: 12,
+          percentage: 33,
+        },
+        next_task: {
+          id: '1.2',
+          title: '实现验证逻辑',
+        },
+      };
+      expect(UpdateOutputSchema.parse(output).success).toBe(true);
+    });
+  });
+});

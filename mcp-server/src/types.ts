@@ -166,3 +166,124 @@ export const ResetInputSchema = z.object({
   archive_id: z.string().optional(),
 });
 export type ResetInput = z.infer<typeof ResetInputSchema>;
+
+// ============================================
+// MCP Tool Output Schemas
+// ============================================
+
+// 通用进度信息
+export const ProgressInfoSchema = z.object({
+  completed: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+  percentage: z.number().nonnegative(),
+});
+export type ProgressInfo = z.infer<typeof ProgressInfoSchema>;
+
+// 下一任务信息
+export const NextTaskInfoSchema = z
+  .object({
+    id: z.string(),
+    title: z.string(),
+  })
+  .nullable();
+export type NextTaskInfo = z.infer<typeof NextTaskInfoSchema>;
+
+// superplanners_plan 输出
+export const PlanOutputSchema = z.object({
+  success: z.boolean(),
+  project_id: z.string(),
+  project_name: z.string(),
+  summary: z.object({
+    total_tasks: z.number(),
+    total_estimate: z.string(),
+  }),
+  files: z.object({
+    index_yaml: z.string(),
+    index_md: z.string(),
+    project_yaml: z.string(),
+    project_md: z.string(),
+  }),
+  next_task: NextTaskInfoSchema,
+});
+export type PlanOutput = z.infer<typeof PlanOutputSchema>;
+
+// superplanners_status 全局视图输出
+export const StatusGlobalOutputSchema = z.object({
+  success: z.boolean(),
+  total_projects: z.number(),
+  projects: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      status: ProjectStatusSchema,
+      progress: z.string(),
+      updated: z.string(),
+    })
+  ),
+});
+export type StatusGlobalOutput = z.infer<typeof StatusGlobalOutputSchema>;
+
+// superplanners_status 项目视图输出
+export const StatusProjectOutputSchema = z.object({
+  success: z.boolean(),
+  project: z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string().optional(),
+    updated: z.string(),
+  }),
+  summary: TaskSummarySchema,
+  progress: ProgressInfoSchema,
+  current_task: NextTaskInfoSchema,
+  tasks: z.array(TaskSchema),
+});
+export type StatusProjectOutput = z.infer<typeof StatusProjectOutputSchema>;
+
+// superplanners_update 输出
+export const UpdateOutputSchema = z.object({
+  success: z.boolean(),
+  updated: z.object({
+    task_id: z.string(),
+    status: z.string(),
+    notes: z.string().optional(),
+  }),
+  summary: TaskSummarySchema,
+  progress: ProgressInfoSchema,
+  next_task: NextTaskInfoSchema,
+});
+export type UpdateOutput = z.infer<typeof UpdateOutputSchema>;
+
+// superplanners_reset 输出
+export const ResetCleanupOutputSchema = z.object({
+  success: z.boolean(),
+  action: z.literal('cleanup'),
+  archived_count: z.number(),
+  archived: z.array(z.string()),
+});
+
+export const ResetListOutputSchema = z.object({
+  success: z.boolean(),
+  action: z.literal('list'),
+  total: z.number(),
+  archives: z.array(
+    z.object({
+      archive_id: z.string(),
+      project_id: z.string(),
+      archived_at: z.string(),
+    })
+  ),
+});
+
+export const ResetRestoreOutputSchema = z.object({
+  success: z.boolean(),
+  action: z.literal('restore'),
+  restored_project_id: z.string(),
+  from_archive: z.string(),
+});
+
+// 错误输出
+export const ErrorOutputSchema = z.object({
+  success: z.literal(false),
+  error: z.string(),
+});
+export type ErrorOutput = z.infer<typeof ErrorOutputSchema>;
