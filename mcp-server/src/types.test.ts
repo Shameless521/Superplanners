@@ -146,3 +146,57 @@ describe('TaskSummary', () => {
     expect(() => TaskSummarySchema.parse(summary)).toThrow();
   });
 });
+
+import { ProjectDataSchema, TaskPlanSchema } from './types.js';
+
+describe('ProjectData', () => {
+  it('should accept valid project data (tasks.yaml format)', () => {
+    const data = {
+      meta: {
+        project: '用户登录功能',
+        project_id: 'user-login',
+        created: '2025-01-23T10:00:00Z',
+        updated: '2025-01-23T10:30:00Z',
+        version: 1,
+      },
+      tasks: [
+        {
+          id: '1',
+          title: '后端 API 开发',
+          status: 'in_progress',
+          priority: 'high',
+          subtasks: [
+            { id: '1.1', title: '设计接口', status: 'completed' },
+          ],
+        },
+      ],
+    };
+    const result = ProjectDataSchema.parse(data);
+    expect(result.meta.project_id).toBe('user-login');
+    expect(result.tasks).toHaveLength(1);
+  });
+});
+
+describe('TaskPlan', () => {
+  it('should accept valid task plan (task-plan.yaml format)', () => {
+    const plan = {
+      meta: {
+        name: 'SuperPlanners',
+        version: '1.0.0',
+        updated: '2025-01-23T10:30:00Z',
+      },
+      projects: [
+        {
+          project_id: 'user-login',
+          project: '用户登录功能',
+          status: 'active',
+          updated: '2025-01-23T10:30:00Z',
+          path: 'user-login/tasks.yaml',
+        },
+      ],
+    };
+    const result = TaskPlanSchema.parse(plan);
+    expect(result.projects).toHaveLength(1);
+    expect(result.projects[0].status).toBe('active');
+  });
+});

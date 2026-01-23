@@ -90,3 +90,42 @@ export const TaskSummarySchema = z.object({
   skipped: z.number().int().nonnegative(),
 });
 export type TaskSummary = z.infer<typeof TaskSummarySchema>;
+
+// ============================================
+// ProjectData 完整数据结构 (tasks.yaml)
+// ============================================
+
+export const ProjectDataSchema = z.object({
+  meta: ProjectMetaSchema,
+  tasks: z.array(TaskSchema),
+});
+export type ProjectData = z.infer<typeof ProjectDataSchema>;
+
+// ============================================
+// TaskPlan 索引数据结构 (task-plan.yaml)
+// ============================================
+
+export const ProjectStatusSchema = z.enum(['active', 'completed']);
+export type ProjectStatus = z.infer<typeof ProjectStatusSchema>;
+
+export const ProjectEntrySchema = z.object({
+  project_id: z.string().min(1),
+  project: z.string().min(1),
+  status: ProjectStatusSchema,
+  updated: z.string().datetime(),
+  path: z.string().min(1),
+});
+export type ProjectEntry = z.infer<typeof ProjectEntrySchema>;
+
+export const TaskPlanMetaSchema = z.object({
+  name: z.string().min(1),
+  version: z.string().min(1),
+  updated: z.string().datetime(),
+});
+export type TaskPlanMeta = z.infer<typeof TaskPlanMetaSchema>;
+
+export const TaskPlanSchema = z.object({
+  meta: TaskPlanMetaSchema,
+  projects: z.array(ProjectEntrySchema),
+});
+export type TaskPlan = z.infer<typeof TaskPlanSchema>;
