@@ -200,3 +200,79 @@ describe('TaskPlan', () => {
     expect(result.projects[0].status).toBe('active');
   });
 });
+
+import {
+  PlanInputSchema,
+  StatusInputSchema,
+  UpdateInputSchema,
+  ResetInputSchema,
+} from './types.js';
+
+describe('MCP Tool Input Schemas', () => {
+  describe('PlanInput', () => {
+    it('should accept requirement only', () => {
+      const input = { requirement: '开发用户登录功能' };
+      expect(PlanInputSchema.parse(input)).toEqual(input);
+    });
+
+    it('should accept requirement with project_name', () => {
+      const input = {
+        requirement: '开发用户登录功能',
+        project_name: '用户登录',
+      };
+      expect(PlanInputSchema.parse(input)).toEqual(input);
+    });
+  });
+
+  describe('StatusInput', () => {
+    it('should accept empty input for global view', () => {
+      expect(StatusInputSchema.parse({})).toEqual({});
+    });
+
+    it('should accept project_id for project view', () => {
+      const input = { project_id: 'user-login' };
+      expect(StatusInputSchema.parse(input)).toEqual(input);
+    });
+  });
+
+  describe('UpdateInput', () => {
+    it('should accept valid update input', () => {
+      const input = {
+        project_id: 'user-login',
+        task_id: '1.1',
+        status: 'completed',
+      };
+      expect(UpdateInputSchema.parse(input)).toEqual(input);
+    });
+
+    it('should accept update with notes', () => {
+      const input = {
+        project_id: 'user-login',
+        task_id: '1.1',
+        status: 'blocked',
+        notes: '等待设计稿',
+      };
+      expect(UpdateInputSchema.parse(input)).toEqual(input);
+    });
+  });
+
+  describe('ResetInput', () => {
+    it('should accept cleanup action', () => {
+      const input = { action: 'cleanup' };
+      expect(ResetInputSchema.parse(input)).toEqual(input);
+    });
+
+    it('should accept list action', () => {
+      const input = { action: 'list' };
+      expect(ResetInputSchema.parse(input)).toEqual(input);
+    });
+
+    it('should accept restore action with archive_id', () => {
+      const input = {
+        action: 'restore',
+        archive_id: '2025-01-23-183500-user-login',
+      };
+      expect(ResetInputSchema.parse(input)).toEqual(input);
+    });
+  });
+});

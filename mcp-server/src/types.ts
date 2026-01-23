@@ -129,3 +129,40 @@ export const TaskPlanSchema = z.object({
   projects: z.array(ProjectEntrySchema),
 });
 export type TaskPlan = z.infer<typeof TaskPlanSchema>;
+
+// ============================================
+// MCP Tool Input Schemas
+// ============================================
+
+// superplanners_plan 输入
+export const PlanInputSchema = z.object({
+  requirement: z.string().min(1),
+  project_name: z.string().optional(),
+});
+export type PlanInput = z.infer<typeof PlanInputSchema>;
+
+// superplanners_status 输入
+export const StatusInputSchema = z.object({
+  project_id: z.string().optional(),
+});
+export type StatusInput = z.infer<typeof StatusInputSchema>;
+
+// superplanners_update 输入
+export const UpdateInputSchema = z.object({
+  project_id: z.string().min(1),
+  task_id: z.string().min(1),
+  status: TaskStatusSchema,
+  notes: z.string().optional(),
+});
+export type UpdateInput = z.infer<typeof UpdateInputSchema>;
+
+// superplanners_reset 输入
+export const ResetActionSchema = z.enum(['cleanup', 'list', 'restore']);
+export type ResetAction = z.infer<typeof ResetActionSchema>;
+
+export const ResetInputSchema = z.object({
+  action: ResetActionSchema,
+  project_id: z.string().optional(),
+  archive_id: z.string().optional(),
+});
+export type ResetInput = z.infer<typeof ResetInputSchema>;
