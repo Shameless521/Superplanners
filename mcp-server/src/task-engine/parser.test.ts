@@ -81,3 +81,67 @@ tasks: []
     });
   });
 });
+
+import { findTaskById, traverseTasks, getAllTasks } from './parser.js';
+import type { Task, SubTask } from '../types.js';
+
+describe('Task Lookup', () => {
+  const tasks: Task[] = [
+    {
+      id: '1',
+      title: '任务1',
+      status: 'in_progress',
+      priority: 'high',
+      subtasks: [
+        { id: '1.1', title: '子任务1.1', status: 'completed' },
+        { id: '1.2', title: '子任务1.2', status: 'pending' },
+      ],
+    },
+    {
+      id: '2',
+      title: '任务2',
+      status: 'pending',
+      priority: 'medium',
+    },
+  ];
+
+  describe('findTaskById', () => {
+    it('should find top-level task', () => {
+      const result = findTaskById(tasks, '1');
+      expect(result).not.toBeNull();
+      expect(result?.task.title).toBe('任务1');
+      expect(result?.isSubtask).toBe(false);
+    });
+
+    it('should find subtask', () => {
+      const result = findTaskById(tasks, '1.1');
+      expect(result).not.toBeNull();
+      expect(result?.task.title).toBe('子任务1.1');
+      expect(result?.isSubtask).toBe(true);
+      expect(result?.parentId).toBe('1');
+    });
+
+    it('should return null for non-existent task', () => {
+      const result = findTaskById(tasks, '999');
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('traverseTasks', () => {
+    it('should visit all tasks including subtasks', () => {
+      const visited: string[] = [];
+      traverseTasks(tasks, (task) => {
+        visited.push(task.id);
+      });
+      expect(visited).toEqual(['1', '1.1', '1.2', '2']);
+    });
+  });
+
+  describe('getAllTasks', () => {
+    it('should return flat list of all tasks', () => {
+      const all = getAllTasks(tasks);
+      expect(all).toHaveLength(4);
+      expect(all.map((t) => t.id)).toEqual(['1', '1.1', '1.2', '2']);
+    });
+  });
+});
