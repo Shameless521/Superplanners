@@ -73,3 +73,65 @@ describe('Status Reducer', () => {
     });
   });
 });
+
+import { validateStatusTransition, updateTaskStatusWithValidation } from './status-reducer.js';
+
+describe('Status Transition Validation', () => {
+  describe('validateStatusTransition', () => {
+    it('should allow pending -> in_progress', () => {
+      expect(validateStatusTransition('pending', 'in_progress').valid).toBe(true);
+    });
+
+    it('should allow pending -> completed (fast track)', () => {
+      expect(validateStatusTransition('pending', 'completed').valid).toBe(true);
+    });
+
+    it('should allow in_progress -> completed', () => {
+      expect(validateStatusTransition('in_progress', 'completed').valid).toBe(true);
+    });
+
+    it('should allow in_progress -> blocked', () => {
+      expect(validateStatusTransition('in_progress', 'blocked').valid).toBe(true);
+    });
+
+    it('should allow blocked -> in_progress', () => {
+      expect(validateStatusTransition('blocked', 'in_progress').valid).toBe(true);
+    });
+
+    it('should NOT allow completed -> pending', () => {
+      const result = validateStatusTransition('completed', 'pending');
+      expect(result.valid).toBe(false);
+      expect(result.reason).toBeDefined();
+    });
+
+    it('should NOT allow completed -> in_progress', () => {
+      const result = validateStatusTransition('completed', 'in_progress');
+      expect(result.valid).toBe(false);
+    });
+
+    it('should allow same status (no-op)', () => {
+      expect(validateStatusTransition('pending', 'pending').valid).toBe(true);
+    });
+  });
+
+  describe('updateTaskStatusWithValidation', () => {
+    const createTasks = (): Task[] => [
+      {
+        id: '1',
+        title: '任务1',
+        status: 'completed',
+        priority: 'high',
+      },
+    ];
+
+    it('should reject invalid transition', () => {
+      const tasks = createTasks();
+      const result = updateTaskStatusWithValidation(tasks, '1', 'pending');
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain('不允许');
+      }
+    });
+  });
+});

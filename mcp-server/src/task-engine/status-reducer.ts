@@ -79,3 +79,70 @@ function updateSubtask(
 
   return updated;
 }
+
+export type ValidationResult =
+  | { valid: true }
+  | { valid: false; reason: string };
+
+const VALID_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
+  pending: ['pending', 'in_progress', 'completed', 'blocked', 'skipped'],
+  in_progress: ['in_progress', 'completed', 'blocked', 'skipped'],
+  blocked: ['blocked', 'in_progress', 'skipped'],
+  completed: ['completed'],
+  skipped: ['skipped'],
+};
+
+export function validateStatusTransition(
+  currentStatus: TaskStatus,
+  newStatus: TaskStatus
+): ValidationResult {
+  const allowedTransitions = VALID_TRANSITIONS[currentStatus];
+
+  if (allowedTransitions.includes(newStatus)) {
+    return { valid: true };
+  }
+
+  return {
+    valid: false,
+    reason: `不允许从 ${currentStatus} 转换到 ${newStatus}`,
+  };
+}
+
+export function updateTaskStatusWithValidation(
+  tasks: Task[],
+  taskId: string,
+  newStatus: TaskStatus,
+  notes?: string
+): UpdateResult {
+  const found = findTaskForValidation(tasks, taskId);
+
+  if (!found) {
+    return { success: false, error: `任务 ${taskId} 不存在` };
+  }
+
+  const validation = validateStatusTransition(found.status, newStatus);
+  if (!validation.valid) {
+    return { success: false, error: validation.reason };
+  }
+
+  return updateTaskStatus(tasks, taskId, newStatus, notes);
+}
+
+function findTaskForValidation(
+  tasks: Task[],
+  taskId: string
+): { status: TaskStatus } | null {
+  for (const task of tasks) {
+    if (task.id === taskId) {
+      return { status: task.status };
+    }
+    if (task.subtasks) {
+      for (const subtask of task.subtasks) {
+        if (subtask.id === taskId) {
+          return { status: subtask.status };
+        }
+      }
+    }
+  }
+  return null;
+}
