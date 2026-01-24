@@ -118,4 +118,87 @@ tasks:
       expect(result.tasks).toHaveLength(2);
     });
   });
+
+  describe('superplanners_update', () => {
+    beforeEach(async () => {
+      // 创建测试项目
+      const tasksDir = join(testDir, 'tasks', 'test-project');
+      await mkdir(tasksDir, { recursive: true });
+      await writeFile(
+        join(tasksDir, 'tasks.yaml'),
+        `
+meta:
+  project: 测试项目
+  project_id: test-project
+  created: "2025-01-23T10:00:00Z"
+  updated: "2025-01-23T10:00:00Z"
+  version: 1
+
+tasks:
+  - id: "1"
+    title: 任务1
+    status: pending
+    priority: high
+  - id: "2"
+    title: 任务2
+    status: pending
+    priority: medium
+`
+      );
+    });
+
+    it('should update task status', async () => {
+      const result = (await handlers.superplanners_update({
+        project_id: 'test-project',
+        task_id: '1',
+        status: 'in_progress',
+      })) as any;
+
+      expect(result.success).toBe(true);
+      expect(result.updated.task_id).toBe('1');
+      expect(result.updated.status).toBe('in_progress');
+      expect(result.summary.in_progress).toBe(1);
+    });
+
+    it('should update task with notes', async () => {
+      const result = (await handlers.superplanners_update({
+        project_id: 'test-project',
+        task_id: '1',
+        status: 'blocked',
+        notes: '等待设计稿',
+      })) as any;
+
+      expect(result.success).toBe(true);
+      expect(result.updated.notes).toBe('等待设计稿');
+    });
+
+    it('should reject invalid status transition', async () => {
+      // 先完成任务
+      await handlers.superplanners_update({
+        project_id: 'test-project',
+        task_id: '1',
+        status: 'completed',
+      });
+
+      // 尝试将 completed 改回 pending
+      const result = (await handlers.superplanners_update({
+        project_id: 'test-project',
+        task_id: '1',
+        status: 'pending',
+      })) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('不允许');
+    });
+
+    it('should return error for non-existent project', async () => {
+      const result = (await handlers.superplanners_update({
+        project_id: 'non-existent',
+        task_id: '1',
+        status: 'completed',
+      })) as any;
+
+      expect(result.success).toBe(false);
+    });
+  });
 });

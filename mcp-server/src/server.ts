@@ -1,7 +1,8 @@
 // mcp-server/src/server.ts
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { FileManager } from './file-manager.js';
-import { StatusInputSchema } from './types.js';
+import { StatusInputSchema, UpdateInputSchema } from './types.js';
+import { updateTaskStatusWithValidation } from './task-engine/status-reducer.js';
 import {
   calculateTaskSummary,
   calculateProgress,
@@ -197,7 +198,61 @@ async function handleStatus(fm: FileManager, args: unknown): Promise<unknown> {
 }
 
 async function handleUpdate(fm: FileManager, args: unknown): Promise<unknown> {
-  return { success: false, error: '尚未实现' };
+  const input = UpdateInputSchema.safeParse(args);
+  if (!input.success) {
+    return { success: false, error: `参数错误: ${input.error.message}` };
+  }
+
+  const { project_id, task_id, status, notes } = input.data;
+
+  // 读取项目数据
+  const readResult = await fm.readProjectData(project_id);
+  if (!readResult.success) {
+    return { success: false, error: readResult.error };
+  }
+
+  const projectData = readResult.data;
+
+  // 执行状态更新（带校验）
+  const updateResult = updateTaskStatusWithValidation(
+    projectData.tasks,
+    task_id,
+    status,
+    notes
+  );
+
+  if (!updateResult.success) {
+    return { success: false, error: updateResult.error };
+  }
+
+  // 更新数据
+  const updatedData = {
+    ...projectData,
+    tasks: updateResult.tasks,
+  };
+
+  // 写回文件
+  const writeResult = await fm.writeProjectData(project_id, updatedData);
+  if (!writeResult.success) {
+    return { success: false, error: writeResult.error };
+  }
+
+  // 计算返回值
+  const summary = calculateTaskSummary(updateResult.tasks);
+  const progress = calculateProgress(updateResult.tasks);
+  const nextTask = selectNextTask(updateResult.tasks);
+
+  return {
+    success: true,
+    updated: {
+      task_id,
+      status,
+      notes,
+    },
+    summary,
+    progress,
+    next_task: nextTask,
+  };
 }
 
 async function handleReset(fm: FileManager, args: unknown): Promise<unknown> {
