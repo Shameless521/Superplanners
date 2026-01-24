@@ -1,12 +1,13 @@
 {
   "name": "superplanners",
-  "displayName": "SuperPlanners",
-  "description": "智能任务分解与管理系统 - 将复杂需求自动拆解为可执行的任务计划",
+  "description": "Intelligent task decomposition and management system for Claude Code / MCP",
   "version": "0.1.0",
-  "author": "Shameless521",
+  "author": {
+    "name": "Shameless521",
+    "email": ""
+  },
+  "homepage": "https://github.com/Shameless521/Superplanners",
   "repository": "https://github.com/Shameless521/Superplanners",
   "license": "MIT",
-  "keywords": ["task-management", "planning", "mcp", "ai"],
-  "commands": "commands",
-  "mcp": ".mcp.json"
+  "keywords": ["task-management", "planning", "mcp", "ai"]
 }
