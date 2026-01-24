@@ -62,6 +62,36 @@ Epic → Feature → Task → Subtask
 /superplanners:next              # 获取下一个推荐任务
 ```
 
+## 任务状态自动更新规则（强制）
+
+当使用 SuperPlanners 管理任务时，**必须**遵循以下规则以确保任务状态自动同步：
+
+### 标记格式
+
+| 场景 | 标记格式 | 触发状态 |
+|------|---------|---------|
+| 开始任务 | `[TASK_STARTED: {project_id}/{task_id}]` | in_progress |
+| 完成任务 | `[TASK_COMPLETED: {project_id}/{task_id}]` | completed |
+| 任务阻塞 | `[TASK_BLOCKED: {project_id}/{task_id}]` | blocked |
+| 跳过任务 | `[TASK_SKIPPED: {project_id}/{task_id}]` | skipped |
+
+### 使用示例
+
+```
+开始实现登录功能 [TASK_STARTED: todo-app/T1.1.1]
+
+... 执行任务中 ...
+
+登录功能已完成，测试通过 [TASK_COMPLETED: todo-app/T1.1.1]
+```
+
+### 重要说明
+
+1. **标记必须完整**：包含 project_id 和 task_id，用 `/` 分隔
+2. **每个任务都要标记**：开始时标记 STARTED，结束时标记 COMPLETED/BLOCKED/SKIPPED
+3. **Hook 自动处理**：输出标记后，系统会自动调用 `superplanners_update` 更新状态
+4. **兜底机制**：如果标记未生效，也可以直接调用 `superplanners_update` MCP 工具
+
 ## 参考文档
 
 - PRD 文档：`super_planners_prd_v_1.md`

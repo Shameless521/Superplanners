@@ -29,3 +29,24 @@ argument-hint: "<requirement> [project_name]"
 - 每个任务应该是单一职责、0.5-4 小时可完成
 - 任务之间需要明确依赖关系
 - 每个任务需要有可验证的完成标准
+
+## 任务执行工作流（自动状态更新）
+
+创建计划后，按以下工作流执行任务，状态会自动更新：
+
+### 开始任务时
+在输出中包含：`[TASK_STARTED: {project_id}/{task_id}]`
+
+### 完成任务时
+在输出中包含：`[TASK_COMPLETED: {project_id}/{task_id}]`
+
+### 示例
+```
+现在开始实现第一个任务 [TASK_STARTED: my-project/1]
+
+... 执行任务 ...
+
+任务完成，代码已通过测试 [TASK_COMPLETED: my-project/1]
+```
+
+系统会自动检测这些标记并更新 tasks.yaml 和 tasks.md 文件。
