@@ -12,8 +12,8 @@
     {
       "name": "superplanners",
       "source": {
-        "type": "git",
-        "url": "https://github.com/Shameless521/Superplanners"
+        "source": "url",
+        "url": "https://github.com/Shameless521/Superplanners.git"
       },
       "description": "Intelligent task decomposition and management system for Claude Code / MCP",
       "version": "0.1.0",
