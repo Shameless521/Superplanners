@@ -201,4 +201,83 @@ tasks:
       expect(result.success).toBe(false);
     });
   });
+
+  describe('superplanners_reset', () => {
+    beforeEach(async () => {
+      // 创建测试项目
+      const tasksDir = join(testDir, 'tasks', 'test-project');
+      await mkdir(tasksDir, { recursive: true });
+      await writeFile(
+        join(tasksDir, 'tasks.yaml'),
+        `
+meta:
+  project: 测试项目
+  project_id: test-project
+  created: "2025-01-23T10:00:00Z"
+  updated: "2025-01-23T10:00:00Z"
+  version: 1
+
+tasks:
+  - id: "1"
+    title: 任务1
+    status: completed
+    priority: high
+`
+      );
+    });
+
+    describe('cleanup action', () => {
+      it('should archive specified project', async () => {
+        const result = (await handlers.superplanners_reset({
+          action: 'cleanup',
+          project_id: 'test-project',
+        })) as any;
+
+        expect(result.success).toBe(true);
+        expect(result.action).toBe('cleanup');
+        expect(result.archived_count).toBe(1);
+        expect(result.archived).toHaveLength(1);
+      });
+    });
+
+    describe('list action', () => {
+      it('should list archives', async () => {
+        // 先归档
+        await handlers.superplanners_reset({
+          action: 'cleanup',
+          project_id: 'test-project',
+        });
+
+        const result = (await handlers.superplanners_reset({
+          action: 'list',
+        })) as any;
+
+        expect(result.success).toBe(true);
+        expect(result.action).toBe('list');
+        expect(result.archives.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('restore action', () => {
+      it('should restore archived project', async () => {
+        // 先归档
+        const archiveResult = (await handlers.superplanners_reset({
+          action: 'cleanup',
+          project_id: 'test-project',
+        })) as any;
+
+        const archiveId = archiveResult.archived[0];
+
+        // 恢复
+        const result = (await handlers.superplanners_reset({
+          action: 'restore',
+          archive_id: archiveId,
+        })) as any;
+
+        expect(result.success).toBe(true);
+        expect(result.action).toBe('restore');
+        expect(result.restored_project_id).toBe('test-project');
+      });
+    });
+  });
 });

@@ -1,7 +1,7 @@
 // mcp-server/src/server.ts
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { FileManager } from './file-manager.js';
-import { StatusInputSchema, UpdateInputSchema } from './types.js';
+import { StatusInputSchema, UpdateInputSchema, ResetInputSchema } from './types.js';
 import { updateTaskStatusWithValidation } from './task-engine/status-reducer.js';
 import {
   calculateTaskSummary,
@@ -256,5 +256,91 @@ async function handleUpdate(fm: FileManager, args: unknown): Promise<unknown> {
 }
 
 async function handleReset(fm: FileManager, args: unknown): Promise<unknown> {
-  return { success: false, error: '尚未实现' };
+  const input = ResetInputSchema.safeParse(args);
+  if (!input.success) {
+    return { success: false, error: `参数错误: ${input.error.message}` };
+  }
+
+  const { action, project_id, archive_id } = input.data;
+
+  switch (action) {
+    case 'cleanup': {
+      if (project_id) {
+        // 归档指定项目
+        const result = await fm.archiveProject(project_id);
+        if (!result.success) {
+          return { success: false, error: result.error };
+        }
+        return {
+          success: true,
+          action: 'cleanup',
+          archived_count: 1,
+          archived: [result.data.archiveId],
+        };
+      } else {
+        // 归档所有已完成项目
+        const projects = await fm.listProjects();
+        const archived: string[] = [];
+
+        for (const pid of projects) {
+          const readResult = await fm.readProjectData(pid);
+          if (!readResult.success) continue;
+
+          // 检查是否所有任务都完成
+          const allCompleted = readResult.data.tasks.every(
+            (t) => t.status === 'completed' || t.status === 'skipped'
+          );
+
+          if (allCompleted) {
+            const archiveResult = await fm.archiveProject(pid);
+            if (archiveResult.success) {
+              archived.push(archiveResult.data.archiveId);
+            }
+          }
+        }
+
+        return {
+          success: true,
+          action: 'cleanup',
+          archived_count: archived.length,
+          archived,
+        };
+      }
+    }
+
+    case 'list': {
+      const archives = await fm.listArchives();
+      return {
+        success: true,
+        action: 'list',
+        total: archives.length,
+        archives: archives.map((a) => ({
+          archive_id: a.archiveId,
+          project_id: a.projectId,
+          archived_at: a.archivedAt,
+        })),
+      };
+    }
+
+    case 'restore': {
+      if (!archive_id) {
+        return { success: false, error: 'restore 操作需要提供 archive_id' };
+      }
+
+      const result = await fm.restoreArchive(archive_id);
+      if (!result.success) {
+        return { success: false, error: result.error };
+      }
+
+      return {
+        success: true,
+        action: 'restore',
+        restored_project_id: result.data.projectId,
+        from_archive: archive_id,
+      };
+    }
+
+    default:
+      return { success: false, error: `未知操作: ${action}` };
+  }
 }
