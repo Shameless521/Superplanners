@@ -1,0 +1,7 @@
+{
+  "name": "superplanners",
+  "displayName": "SuperPlanners",
+  "description": "智能任务分解与管理系统",
+  "version": "0.1.0",
+  "commands": "commands"
+}

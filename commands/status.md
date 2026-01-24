@@ -1,0 +1,42 @@
+---
+name: status
+description: 查看任务状态和进度
+arguments:
+  - name: project_id
+    description: 项目ID（可选，不填显示全部项目）
+    required: false
+---
+
+# SuperPlanners - 查看状态
+
+查看任务状态和整体进度。
+
+## 使用方法
+
+调用 `superplanners_status` MCP Tool：
+
+```
+参数:
+- project_id: {{{project_id}}}
+```
+
+## 输出内容
+
+### 全局视图（不指定 project_id）
+
+- 所有项目列表
+- 每个项目的进度
+- 项目状态（active/completed）
+- 更新时间
+
+### 项目视图（指定 project_id）
+
+- 项目基本信息
+- 进度条和百分比
+- 任务统计（已完成/进行中/待开始/阻塞/跳过）
+- 当前任务
+- 完整任务列表
+
+## 注意事项
+
+- summary、progress 等数据是实时计算的，不存储在 YAML 中
