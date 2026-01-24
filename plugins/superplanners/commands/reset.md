@@ -1,13 +1,6 @@
 ---
-name: reset
 description: 归档清理或恢复历史任务
-arguments:
-  - name: action
-    description: 操作类型 (cleanup/list/restore)
-    required: true
-  - name: target
-    description: 目标ID (project_id 或 archive_id)
-    required: false
+argument-hint: "<action: cleanup|list|restore> [target]"
 ---
 
 # SuperPlanners - 归档与恢复

@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "SuperPlanners Plugin Marketplace",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {
       "name": "superplanners",
       "source": "./plugins/superplanners",
       "description": "Intelligent task decomposition and management system for Claude Code / MCP",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "author": {
         "name": "Shameless521"
       },

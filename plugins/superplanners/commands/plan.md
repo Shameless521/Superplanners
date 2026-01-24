@@ -1,13 +1,6 @@
 ---
-name: plan
 description: 根据需求创建结构化任务计划
-arguments:
-  - name: requirement
-    description: 需求描述
-    required: true
-  - name: project_name
-    description: 项目名称（可选）
-    required: false
+argument-hint: "<requirement> [project_name]"
 ---
 
 # SuperPlanners - 创建任务计划

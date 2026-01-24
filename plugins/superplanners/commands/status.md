@@ -1,10 +1,6 @@
 ---
-name: status
 description: 查看任务状态和进度
-arguments:
-  - name: project_id
-    description: 项目ID（可选，不填显示全部项目）
-    required: false
+argument-hint: "[project_id]"
 ---
 
 # SuperPlanners - 查看状态
