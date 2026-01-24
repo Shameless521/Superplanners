@@ -1,6 +1,13 @@
 // mcp-server/src/server.ts
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { FileManager } from './file-manager.js';
+import { StatusInputSchema } from './types.js';
+import {
+  calculateTaskSummary,
+  calculateProgress,
+  formatProgressString,
+} from './task-engine/progress-calculator.js';
+import { selectNextTask } from './task-engine/next-task-selector.js';
 
 // 工具定义
 export const TOOLS: Tool[] = [
@@ -109,7 +116,84 @@ async function handlePlan(fm: FileManager, args: unknown): Promise<unknown> {
 }
 
 async function handleStatus(fm: FileManager, args: unknown): Promise<unknown> {
-  return { success: false, error: '尚未实现' };
+  const input = StatusInputSchema.safeParse(args);
+  if (!input.success) {
+    return { success: false, error: `参数错误: ${input.error.message}` };
+  }
+
+  const { project_id } = input.data;
+
+  // 项目视图
+  if (project_id) {
+    const result = await fm.readProjectData(project_id);
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+
+    const { meta, tasks } = result.data;
+    const summary = calculateTaskSummary(tasks);
+    const progress = calculateProgress(tasks);
+    const nextTask = selectNextTask(tasks);
+
+    // 找到当前进行中的任务
+    const currentTask = tasks.find((t) => t.status === 'in_progress');
+
+    return {
+      success: true,
+      project: {
+        id: meta.project_id,
+        name: meta.project,
+        description: meta.description,
+        updated: meta.updated,
+      },
+      summary,
+      progress,
+      current_task: currentTask
+        ? { id: currentTask.id, title: currentTask.title }
+        : null,
+      tasks,
+    };
+  }
+
+  // 全局视图
+  const taskPlanResult = await fm.readTaskPlan();
+
+  if (!taskPlanResult.success) {
+    return { success: false, error: taskPlanResult.error };
+  }
+
+  // 如果没有 task-plan.yaml，返回空列表
+  if (!taskPlanResult.data) {
+    return {
+      success: true,
+      total_projects: 0,
+      projects: [],
+    };
+  }
+
+  const projects = [];
+  for (const entry of taskPlanResult.data.projects) {
+    const projectResult = await fm.readProjectData(entry.project_id);
+    let progress = '?/?';
+
+    if (projectResult.success) {
+      progress = formatProgressString(projectResult.data.tasks);
+    }
+
+    projects.push({
+      id: entry.project_id,
+      name: entry.project,
+      status: entry.status,
+      progress,
+      updated: entry.updated,
+    });
+  }
+
+  return {
+    success: true,
+    total_projects: projects.length,
+    projects,
+  };
 }
 
 async function handleUpdate(fm: FileManager, args: unknown): Promise<unknown> {
