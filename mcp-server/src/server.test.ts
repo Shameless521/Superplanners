@@ -280,4 +280,39 @@ tasks:
       });
     });
   });
+
+  describe('superplanners_plan', () => {
+    it('should create project with tasks', async () => {
+      const result = (await handlers.superplanners_plan({
+        requirement: '开发用户登录功能，包括前后端',
+        project_name: '用户登录功能',
+      })) as any;
+
+      expect(result.success).toBe(true);
+      expect(result.project_id).toBeDefined();
+      expect(result.project_name).toBe('用户登录功能');
+      expect(result.files.project_yaml).toContain('tasks.yaml');
+    });
+
+    it('should generate project_id from project_name', async () => {
+      const result = (await handlers.superplanners_plan({
+        requirement: '测试需求',
+        project_name: '中文项目名称',
+      })) as any;
+
+      expect(result.success).toBe(true);
+      // project_id 应该是 slug 格式
+      expect(result.project_id).toMatch(/^[a-z0-9-]+$/);
+    });
+
+    it('should create task-plan.yaml if not exists', async () => {
+      await handlers.superplanners_plan({
+        requirement: '测试需求',
+        project_name: '测试项目',
+      });
+
+      const taskPlan = await handlers.superplanners_status({});
+      expect((taskPlan as any).total_projects).toBeGreaterThan(0);
+    });
+  });
 });

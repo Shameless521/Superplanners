@@ -1,7 +1,8 @@
 // mcp-server/src/server.ts
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { FileManager } from './file-manager.js';
-import { StatusInputSchema, UpdateInputSchema, ResetInputSchema } from './types.js';
+import type { Task, ProjectData, TaskPlan } from './types.js';
+import { PlanInputSchema, StatusInputSchema, UpdateInputSchema, ResetInputSchema } from './types.js';
 import { updateTaskStatusWithValidation } from './task-engine/status-reducer.js';
 import {
   calculateTaskSummary,
@@ -111,9 +112,167 @@ export function createToolHandlers(baseDir: string): ToolHandlers {
   };
 }
 
-// 占位处理器（将在后续任务中实现）
+/**
+ * 生成 project_id (slug 格式)
+ */
+function generateProjectId(name: string): string {
+  // 简单的中文转拼音首字母 + 去除特殊字符
+  const slug = name
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^\w\u4e00-\u9fa5-]/g, '')
+    .replace(/^-+|-+$/g, '');
+
+  // 如果是纯中文，生成随机 ID
+  if (/^[\u4e00-\u9fa5-]+$/.test(slug)) {
+    const timestamp = Date.now().toString(36);
+    return `project-${timestamp}`;
+  }
+
+  return slug || `project-${Date.now().toString(36)}`;
+}
+
+/**
+ * 根据需求生成默认任务（简化版本）
+ * 在实际应用中，这里应该调用 AI 进行任务分解
+ */
+function generateDefaultTasks(requirement: string): Task[] {
+  // 这是一个简化的实现，实际应该由 Claude 分解
+  return [
+    {
+      id: '1',
+      title: '需求分析',
+      description: `分析需求: ${requirement}`,
+      status: 'pending',
+      priority: 'high',
+      estimate: '2h',
+    },
+    {
+      id: '2',
+      title: '技术设计',
+      status: 'pending',
+      priority: 'high',
+      estimate: '4h',
+      dependencies: ['1'],
+    },
+    {
+      id: '3',
+      title: '开发实现',
+      status: 'pending',
+      priority: 'high',
+      estimate: '8h',
+      dependencies: ['2'],
+    },
+    {
+      id: '4',
+      title: '测试验证',
+      status: 'pending',
+      priority: 'medium',
+      estimate: '4h',
+      dependencies: ['3'],
+    },
+  ];
+}
+
 async function handlePlan(fm: FileManager, args: unknown): Promise<unknown> {
-  return { success: false, error: '尚未实现' };
+  const input = PlanInputSchema.safeParse(args);
+  if (!input.success) {
+    return { success: false, error: `参数错误: ${input.error.message}` };
+  }
+
+  const { requirement, project_name } = input.data;
+  const name = project_name || '新项目';
+  const projectId = generateProjectId(name);
+
+  // 检查项目是否已存在
+  if (await fm.projectExists(projectId)) {
+    return { success: false, error: `项目 ${projectId} 已存在` };
+  }
+
+  const now = new Date().toISOString();
+  const tasks = generateDefaultTasks(requirement);
+
+  // 创建项目数据
+  const projectData: ProjectData = {
+    meta: {
+      project: name,
+      project_id: projectId,
+      created: now,
+      updated: now,
+      version: 1,
+      description: requirement,
+    },
+    tasks,
+  };
+
+  // 写入项目
+  const writeResult = await fm.writeProjectData(projectId, projectData);
+  if (!writeResult.success) {
+    return { success: false, error: writeResult.error };
+  }
+
+  // 更新或创建 task-plan.yaml
+  let taskPlan: TaskPlan;
+  const taskPlanResult = await fm.readTaskPlan();
+
+  if (taskPlanResult.success && taskPlanResult.data) {
+    taskPlan = {
+      ...taskPlanResult.data,
+      projects: [
+        ...taskPlanResult.data.projects,
+        {
+          project_id: projectId,
+          project: name,
+          status: 'active',
+          updated: now,
+          path: `${projectId}/tasks.yaml`,
+        },
+      ],
+    };
+  } else {
+    taskPlan = {
+      meta: {
+        name: 'SuperPlanners',
+        version: '1.0.0',
+        updated: now,
+      },
+      projects: [
+        {
+          project_id: projectId,
+          project: name,
+          status: 'active',
+          updated: now,
+          path: `${projectId}/tasks.yaml`,
+        },
+      ],
+    };
+  }
+
+  await fm.writeTaskPlan(taskPlan);
+
+  // 计算摘要
+  const summary = calculateTaskSummary(tasks);
+  const totalEstimate = tasks
+    .map((t) => t.estimate || '0h')
+    .join(' + ');
+  const nextTask = selectNextTask(tasks);
+
+  return {
+    success: true,
+    project_id: projectId,
+    project_name: name,
+    summary: {
+      total_tasks: summary.total,
+      total_estimate: totalEstimate,
+    },
+    files: {
+      index_yaml: 'tasks/task-plan.yaml',
+      index_md: 'tasks/task-plan.md',
+      project_yaml: `tasks/${projectId}/tasks.yaml`,
+      project_md: `tasks/${projectId}/tasks.md`,
+    },
+    next_task: nextTask,
+  };
 }
 
 async function handleStatus(fm: FileManager, args: unknown): Promise<unknown> {
