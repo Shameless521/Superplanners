@@ -1,5 +1,5 @@
 ---
-name: status
+name: superplanners:status
 description: 查看任务状态和进度
 arguments:
   - name: project_id

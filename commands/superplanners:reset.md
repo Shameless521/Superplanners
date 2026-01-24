@@ -1,5 +1,5 @@
 ---
-name: reset
+name: superplanners:reset
 description: 归档清理或恢复历史任务
 arguments:
   - name: action
