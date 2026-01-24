@@ -28,7 +28,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/superplanners.git"
+    "url": "https://github.com/Shameless521/Superplanners.git"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

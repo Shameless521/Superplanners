@@ -1587,7 +1587,7 @@ npx superplanners-mcp
 ### 使用 Claude Code Plugin
 
 ```bash
-claude plugins add https://github.com/your-org/superplanners
+claude plugins add https://github.com/Shameless521/Superplanners
 ```
 
 ## 使用指南
@@ -2000,7 +2000,7 @@ git commit -m "chore: 添加 MIT License"
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/superplanners.git"
+    "url": "https://github.com/Shameless521/Superplanners.git"
   },
   "engines": {
     "node": ">=18.0.0"

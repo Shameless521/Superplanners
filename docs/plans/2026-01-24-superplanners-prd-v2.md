@@ -743,7 +743,7 @@ projects:
 
 ```bash
 # 步骤 1：安装 Plugin（在 Claude Code 中执行）
-/plugin install github:your-username/superplanners
+/plugin install github:Shameless521/Superplanners
 
 # 步骤 2：配置 MCP（编辑 ~/.claude/settings.json）
 {
@@ -762,7 +762,7 @@ projects:
 
 ```bash
 # 步骤 1：克隆仓库
-git clone https://github.com/your-username/superplanners.git
+git clone https://github.com/Shameless521/Superplanners.git
 
 # 步骤 2：安装 MCP Server
 cd superplanners/mcp-server

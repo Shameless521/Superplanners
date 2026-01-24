@@ -38,7 +38,7 @@ npx superplanners-mcp
 ### 使用 Claude Code Plugin
 
 ```bash
-claude plugins add https://github.com/your-org/superplanners
+claude plugins add https://github.com/Shameless521/Superplanners
 ```
 
 ## 使用指南

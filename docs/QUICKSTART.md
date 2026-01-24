@@ -4,17 +4,58 @@
 
 ---
 
-## 安装配置
+## 本地运行
 
-### 方式一：npx 直接运行
+### 方式一：从源码运行
+
+```bash
+# 克隆项目
+git clone https://github.com/Shameless521/Superplanners.git
+cd superplanners/mcp-server
+
+# 安装依赖
+npm install
+
+# 构建
+npm run build
+
+# 运行
+npm start
+```
+
+### 方式二：npx 直接运行（发布后）
 
 ```bash
 npx superplanners-mcp
 ```
 
-### 方式二：配置 MCP Server
+### 方式三：全局安装
 
-在项目根目录创建 `.mcp.json`：
+```bash
+npm install -g superplanners-mcp
+superplanners-mcp
+```
+
+---
+
+## 配置 Claude Code
+
+### 本地开发配置
+
+在项目根目录创建 `.mcp.json`，指向本地构建：
+
+```json
+{
+  "mcpServers": {
+    "superplanners": {
+      "command": "node",
+      "args": ["/path/to/superplanners/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+### 使用 npx 配置（推荐）
 
 ```json
 {
@@ -27,11 +68,75 @@ npx superplanners-mcp
 }
 ```
 
-### 方式三：Claude Code Plugin
+### Claude Code Plugin 方式
 
 ```bash
-claude plugins add https://github.com/your-org/superplanners
+claude plugins add https://github.com/Shameless521/Superplanners
 ```
+
+---
+
+## 服务端部署
+
+### Docker 部署
+
+**Dockerfile:**
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY mcp-server/package*.json ./
+RUN npm ci --production
+COPY mcp-server/dist ./dist
+EXPOSE 3000
+CMD ["node", "dist/index.js"]
+```
+
+**构建和运行:**
+```bash
+docker build -t superplanners-mcp .
+docker run -d -p 3000:3000 -v /data/tasks:/app/tasks superplanners-mcp
+```
+
+### PM2 部署（Linux 服务器）
+
+```bash
+# 安装 PM2
+npm install -g pm2
+
+# 克隆并构建
+git clone https://github.com/Shameless521/Superplanners.git
+cd superplanners/mcp-server
+npm install && npm run build
+
+# 启动服务
+pm2 start dist/index.js --name superplanners
+
+# 设置开机自启
+pm2 startup
+pm2 save
+```
+
+### 远程 MCP Server 配置
+
+如果 MCP Server 部署在远程服务器，可以通过 SSH 隧道或直接配置：
+
+```json
+{
+  "mcpServers": {
+    "superplanners": {
+      "command": "ssh",
+      "args": ["user@server", "node", "/opt/superplanners/dist/index.js"]
+    }
+  }
+}
+```
+
+### 环境变量
+
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `SUPERPLANNERS_DATA_DIR` | 任务数据存储目录 | `./tasks` |
+| `SUPERPLANNERS_LOG_LEVEL` | 日志级别 (debug/info/warn/error) | `info` |
 
 ---
 
