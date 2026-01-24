@@ -6,18 +6,27 @@
   },
   "metadata": {
     "description": "SuperPlanners Plugin Marketplace",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "plugins": [
     {
       "name": "superplanners",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/Shameless521/Superplanners.git"
-      },
+      "source": "./plugins/superplanners",
       "description": "Intelligent task decomposition and management system for Claude Code / MCP",
-      "version": "0.1.0",
-      "strict": true
+      "version": "0.2.0",
+      "author": {
+        "name": "Shameless521"
+      },
+      "homepage": "https://github.com/Shameless521/Superplanners",
+      "repository": "https://github.com/Shameless521/Superplanners",
+      "license": "MIT",
+      "keywords": [
+        "task-management",
+        "planning",
+        "mcp",
+        "ai",
+        "claude-code"
+      ]
     }
   ]
 }

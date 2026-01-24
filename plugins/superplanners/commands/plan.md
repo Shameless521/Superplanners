@@ -1,5 +1,5 @@
 ---
-name: superplanners:plan
+name: plan
 description: 根据需求创建结构化任务计划
 arguments:
   - name: requirement
