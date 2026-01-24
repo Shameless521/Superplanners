@@ -10,19 +10,26 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "start": "node dist/index.js",
     "test": "vitest",
     "test:run": "vitest run",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build && npm run test:run"
   },
   "keywords": [
     "mcp",
     "claude",
     "task-management",
+    "planning",
     "ai"
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/superplanners.git"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "yaml": "^2.3.0",
@@ -35,9 +42,10 @@
     "vitest": "^1.0.0"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=18.0.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ]
 }

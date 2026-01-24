@@ -1,0 +1,16 @@
+# 源代码（发布 dist）
+src/
+
+# 测试
+*.test.ts
+vitest.config.ts
+coverage/
+
+# 开发配置
+tsconfig.json
+.eslintrc*
+.prettierrc*
+
+# 杂项
+.DS_Store
+*.log
