@@ -1,9 +1,165 @@
 # SuperPlanners
 
-> 智能任务分解与管理系统，为 Claude Code / MCP 环境设计
+> Intelligent task decomposition and management system for Claude Code / MCP environments.
+>
+> 智能任务分解与管理系统，为 Claude Code / MCP 环境设计。
 
 [![npm version](https://badge.fury.io/js/superplanners-mcp.svg)](https://www.npmjs.com/package/superplanners-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+[English](#features) | [中文](#特性)
+
+---
+
+## Features
+
+- **Smart Task Decomposition**: Automatically break down complex requirements into Epic → Feature → Task → Subtask hierarchy
+- **Status Tracking**: Support for pending / in_progress / completed / blocked / skipped states
+- **Dependency Management**: Automatic cycle detection and intelligent next-task recommendations
+- **Progress Visualization**: Real-time progress calculation with Markdown reports
+- **MCP Integration**: Seamless Claude Code integration via MCP Tools
+
+## Installation
+
+### Option 1: Via Plugin Marketplace (Recommended)
+
+```bash
+# Step 1: Install MCP Server globally
+npm install -g superplanners-mcp
+
+# Step 2: Add Marketplace in Claude Code
+/plugin marketplace add Shameless521/Superplanners
+
+# Step 3: Install Plugin
+/plugin install superplanners
+```
+
+### Option 2: Direct Plugin Install
+
+```bash
+/plugin install Shameless521/Superplanners
+```
+
+### Option 3: Manual MCP Configuration
+
+```json
+// .mcp.json
+{
+  "mcpServers": {
+    "superplanners": {
+      "command": "npx",
+      "args": ["superplanners-mcp"]
+    }
+  }
+}
+```
+
+## Usage
+
+### 1. Create Task Plan
+
+```
+/superplanners:plan Create a TODO app with CRUD operations
+```
+
+Claude will automatically:
+1. Analyze requirements
+2. Generate task breakdown (Epic/Feature/Task)
+3. Create `tasks/<project>/tasks.yaml`
+4. Render `tasks/<project>/tasks.md`
+
+### 2. View Status
+
+```
+/superplanners:status
+```
+
+View all projects:
+```
+📋 SuperPlanners Project List
+| Project | Progress | Status |
+|---------|----------|--------|
+| todo-app | 30% | In Progress |
+```
+
+View specific project:
+```
+/superplanners:status todo-app
+```
+
+### 3. Update Tasks
+
+Natural language:
+```
+Task T1.1.1 is completed
+```
+
+Or use command:
+```
+/superplanners:update todo-app T1.1.1 completed
+```
+
+### 4. Archive & Restore
+
+```
+/superplanners:reset cleanup todo-app  # Archive project
+/superplanners:reset list              # List archives
+/superplanners:reset restore <id>      # Restore archive
+```
+
+## Task Status
+
+| Status | Icon | Description |
+|--------|------|-------------|
+| pending | ⏸️ | Not started |
+| in_progress | 🔄 | In progress |
+| completed | ✅ | Completed |
+| blocked | 🚫 | Blocked |
+| skipped | ⏭️ | Skipped |
+
+## Priority Levels
+
+| Priority | Weight | Description |
+|----------|--------|-------------|
+| critical | 4 | Critical |
+| high | 3 | High |
+| medium | 2 | Medium |
+| low | 1 | Low |
+
+## MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `superplanners_plan` | Create task plan |
+| `superplanners_status` | Query project/task status |
+| `superplanners_update` | Update task status |
+| `superplanners_reset` | Archive/restore/cleanup |
+
+## Development
+
+```bash
+# Install dependencies
+cd mcp-server && npm install
+
+# Run tests
+npm test
+
+# Build
+npm run build
+
+# Run locally
+npm start
+```
+
+## Design Principles
+
+- **SSOT**: YAML is the single source of truth, Markdown is derived view
+- **Atomic Transactions**: Read → Modify → Validate → Write → Render, rollback on any failure
+- **Stateless Service**: MCP Server holds no business state, all state stored in filesystem
+
+---
+
+# 中文文档
 
 ## 特性
 
@@ -59,8 +215,8 @@ npm install -g superplanners-mcp
 Claude 会自动：
 1. 分析需求
 2. 生成任务分解（Epic/Feature/Task）
-3. 创建 `tasks/todo-app/tasks.yaml`
-4. 渲染 `tasks/todo-app/tasks.md`
+3. 创建 `tasks/<项目名>/tasks.yaml`
+4. 渲染 `tasks/<项目名>/tasks.md`
 
 ### 2. 查看状态
 
@@ -101,87 +257,34 @@ Claude 会自动：
 /superplanners:reset restore <id>      # 恢复归档
 ```
 
-## 数据结构
-
-### YAML 格式
+## 数据结构示例
 
 ```yaml
 meta:
   id: todo-app
-  name: TODO 应用
+  name: TODO App
   created: "2024-01-01T00:00:00Z"
   updated: "2024-01-01T12:00:00Z"
 
 epics:
   - id: E1
-    title: 核心功能
+    title: Core Features
     features:
       - id: F1.1
-        title: 任务 CRUD
+        title: Task CRUD
         tasks:
           - id: T1.1.1
-            title: 实现添加任务
+            title: Implement add task
             status: completed
             priority: high
             estimate: 2h
-            notes: "已完成，使用了 React Hook Form"
           - id: T1.1.2
-            title: 实现删除任务
+            title: Implement delete task
             status: pending
             priority: high
             estimate: 1h
             depends_on: [T1.1.1]
 ```
-
-### 状态说明
-
-| 状态 | 图标 | 说明 |
-|------|------|------|
-| pending | ⏸️ | 待处理 |
-| in_progress | 🔄 | 进行中 |
-| completed | ✅ | 已完成 |
-| blocked | 🚫 | 被阻塞 |
-| skipped | ⏭️ | 已跳过 |
-
-### 优先级
-
-| 优先级 | 权重 | 说明 |
-|--------|------|------|
-| critical | 4 | 紧急关键 |
-| high | 3 | 高优先级 |
-| medium | 2 | 中优先级 |
-| low | 1 | 低优先级 |
-
-## MCP Tools
-
-| Tool | 说明 |
-|------|------|
-| `superplanners_plan` | 创建任务计划 |
-| `superplanners_status` | 查询项目/任务状态 |
-| `superplanners_update` | 更新任务状态 |
-| `superplanners_reset` | 归档/恢复/清理 |
-
-## 开发
-
-```bash
-# 安装依赖
-cd mcp-server && npm install
-
-# 运行测试
-npm test
-
-# 构建
-npm run build
-
-# 本地运行
-npm start
-```
-
-## 设计原则
-
-- **SSOT**: YAML 是唯一数据源，Markdown 是派生视图
-- **原子事务**: 读取 → 变更 → 校验 → 写入 → 渲染，任何步骤失败都回滚
-- **无状态服务**: MCP Server 不持有业务状态，所有状态存储在文件系统
 
 ## License
 
