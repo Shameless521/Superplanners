@@ -157,4 +157,85 @@ projects: []
       }
     });
   });
+
+  describe('listProjects', () => {
+    it('should list all projects', async () => {
+      // 创建两个项目
+      const project1: ProjectData = {
+        meta: {
+          project: '项目1',
+          project_id: 'project-1',
+          created: '2025-01-23T10:00:00Z',
+          updated: '2025-01-23T10:00:00Z',
+          version: 1,
+        },
+        tasks: [],
+      };
+      const project2: ProjectData = {
+        meta: {
+          project: '项目2',
+          project_id: 'project-2',
+          created: '2025-01-23T10:00:00Z',
+          updated: '2025-01-23T10:00:00Z',
+          version: 1,
+        },
+        tasks: [],
+      };
+
+      await fm.writeProjectData('project-1', project1);
+      await fm.writeProjectData('project-2', project2);
+
+      const projects = await fm.listProjects();
+      expect(projects).toHaveLength(2);
+      expect(projects).toContain('project-1');
+      expect(projects).toContain('project-2');
+    });
+
+    it('should return empty array when no projects', async () => {
+      const projects = await fm.listProjects();
+      expect(projects).toEqual([]);
+    });
+  });
+
+  describe('projectExists', () => {
+    it('should return true for existing project', async () => {
+      const project: ProjectData = {
+        meta: {
+          project: '测试',
+          project_id: 'test',
+          created: '2025-01-23T10:00:00Z',
+          updated: '2025-01-23T10:00:00Z',
+          version: 1,
+        },
+        tasks: [],
+      };
+      await fm.writeProjectData('test', project);
+
+      expect(await fm.projectExists('test')).toBe(true);
+    });
+
+    it('should return false for non-existing project', async () => {
+      expect(await fm.projectExists('non-existent')).toBe(false);
+    });
+  });
+
+  describe('deleteProject', () => {
+    it('should delete project directory', async () => {
+      const project: ProjectData = {
+        meta: {
+          project: '测试',
+          project_id: 'test',
+          created: '2025-01-23T10:00:00Z',
+          updated: '2025-01-23T10:00:00Z',
+          version: 1,
+        },
+        tasks: [],
+      };
+      await fm.writeProjectData('test', project);
+      expect(await fm.projectExists('test')).toBe(true);
+
+      await fm.deleteProject('test');
+      expect(await fm.projectExists('test')).toBe(false);
+    });
+  });
 });

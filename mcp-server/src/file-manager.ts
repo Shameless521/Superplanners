@@ -1,5 +1,5 @@
 // src/file-manager.ts
-import { readFile, writeFile, rename, unlink, access, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, rename, unlink, access, mkdir, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { constants } from 'node:fs';
 import YAML from 'yaml';
@@ -194,6 +194,65 @@ export class FileManager {
       return {
         success: false,
         error: `写入失败: ${e instanceof Error ? e.message : String(e)}`,
+      };
+    }
+  }
+
+  /**
+   * 列出所有项目
+   */
+  async listProjects(): Promise<string[]> {
+    if (!(await this.fileExists(this.tasksDir))) {
+      return [];
+    }
+
+    try {
+      const entries = await readdir(this.tasksDir, { withFileTypes: true });
+      const projects: string[] = [];
+
+      for (const entry of entries) {
+        // 跳过文件和特殊目录
+        if (!entry.isDirectory()) continue;
+        if (entry.name.startsWith('.')) continue;
+
+        // 检查是否有 tasks.yaml
+        const yamlPath = join(this.tasksDir, entry.name, 'tasks.yaml');
+        if (await this.fileExists(yamlPath)) {
+          projects.push(entry.name);
+        }
+      }
+
+      return projects;
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * 检查项目是否存在
+   */
+  async projectExists(projectId: string): Promise<boolean> {
+    const yamlPath = this.getProjectYamlPath(projectId);
+    return this.fileExists(yamlPath);
+  }
+
+  /**
+   * 删除项目
+   */
+  async deleteProject(projectId: string): Promise<FileResult<void>> {
+    const projectDir = this.getProjectDir(projectId);
+
+    if (!(await this.projectExists(projectId))) {
+      return { success: false, error: `项目 ${projectId} 不存在` };
+    }
+
+    try {
+      await rm(projectDir, { recursive: true });
+      return { success: true, data: undefined };
+    } catch (e) {
+      return {
+        success: false,
+        error: `删除失败: ${e instanceof Error ? e.message : String(e)}`,
       };
     }
   }
