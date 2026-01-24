@@ -15,13 +15,26 @@
 
 ## 安装
 
-### 作为 MCP Server
+### 方式一：通过 Plugin Marketplace（推荐）
 
 ```bash
-npx superplanners-mcp
+# 步骤 1: 全局安装 MCP Server
+npm install -g superplanners-mcp
+
+# 步骤 2: 在 Claude Code 中添加 Marketplace
+/plugin marketplace add Shameless521/Superplanners
+
+# 步骤 3: 安装 Plugin
+/plugin install superplanners
 ```
 
-### 在 Claude Code 中配置
+### 方式二：直接安装 Plugin
+
+```bash
+/plugin install Shameless521/Superplanners
+```
+
+### 方式三：手动配置 MCP
 
 ```json
 // .mcp.json
@@ -33,12 +46,6 @@ npx superplanners-mcp
     }
   }
 }
-```
-
-### 使用 Claude Code Plugin
-
-```bash
-claude plugins add https://github.com/Shameless521/Superplanners
 ```
 
 ## 使用指南

@@ -1,7 +1,12 @@
 {
   "name": "superplanners",
   "displayName": "SuperPlanners",
-  "description": "智能任务分解与管理系统",
+  "description": "智能任务分解与管理系统 - 将复杂需求自动拆解为可执行的任务计划",
   "version": "0.1.0",
-  "commands": "commands"
+  "author": "Shameless521",
+  "repository": "https://github.com/Shameless521/Superplanners",
+  "license": "MIT",
+  "keywords": ["task-management", "planning", "mcp", "ai"],
+  "commands": "commands",
+  "mcp": ".mcp.json"
 }

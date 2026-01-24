@@ -1,0 +1,29 @@
+{
+  "name": "superplanners-marketplace",
+  "displayName": "SuperPlanners Marketplace",
+  "description": "SuperPlanners 插件市场",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "superplanners",
+      "displayName": "SuperPlanners",
+      "description": "智能任务分解与管理系统 - 将复杂需求自动拆解为可执行的任务计划",
+      "version": "0.1.0",
+      "repository": "https://github.com/Shameless521/Superplanners",
+      "path": ".",
+      "categories": ["Task Management", "Planning", "Productivity"],
+      "features": [
+        "智能任务分解 (Epic → Feature → Task → Subtask)",
+        "状态追踪 (pending/in_progress/completed/blocked/skipped)",
+        "依赖管理和循环检测",
+        "进度可视化",
+        "MCP Server 集成"
+      ],
+      "commands": [
+        "/superplanners:plan - 创建任务计划",
+        "/superplanners:status - 查看任务状态",
+        "/superplanners:reset - 归档与恢复"
+      ]
+    }
+  ]
+}
