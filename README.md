@@ -15,6 +15,7 @@
 
 - **Smart Task Decomposition**: Automatically break down complex requirements into Epic → Feature → Task → Subtask hierarchy
 - **Status Tracking**: Support for pending / in_progress / completed / blocked / skipped states
+- **Auto Status Update** (v0.4.0): Automatic task status synchronization via output markers
 - **Dependency Management**: Automatic cycle detection and intelligent next-task recommendations
 - **Progress Visualization**: Real-time progress calculation with Markdown reports
 - **MCP Integration**: Seamless Claude Code integration via MCP Tools
@@ -88,6 +89,27 @@ View specific project:
 ```
 
 ### 3. Update Tasks
+
+**Auto Status Update (v0.4.0)**
+
+Simply include status markers in your output, and tasks will update automatically:
+
+```
+Starting task implementation [TASK_STARTED: todo-app/T1.1.1]
+
+... working on the task ...
+
+Task completed successfully [TASK_COMPLETED: todo-app/T1.1.1]
+```
+
+| Marker | Status |
+|--------|--------|
+| `[TASK_STARTED: project/task]` | in_progress |
+| `[TASK_COMPLETED: project/task]` | completed |
+| `[TASK_BLOCKED: project/task]` | blocked |
+| `[TASK_SKIPPED: project/task]` | skipped |
+
+**Manual Update**
 
 Natural language:
 ```
@@ -165,6 +187,7 @@ npm start
 
 - **智能任务分解**: 将复杂需求自动拆解为 Epic → Feature → Task → Subtask 层级结构
 - **状态追踪**: 支持 pending / in_progress / completed / blocked / skipped 五种状态
+- **自动状态更新** (v0.4.0): 通过输出标记自动同步任务状态
 - **依赖管理**: 自动检测循环依赖，智能推荐下一个可执行任务
 - **进度可视化**: 实时计算进度百分比，生成 Markdown 格式的进度报告
 - **MCP 集成**: 无缝集成 Claude Code，通过 MCP Tools 进行交互
@@ -238,6 +261,27 @@ Claude 会自动：
 ```
 
 ### 3. 更新任务
+
+**自动状态更新 (v0.4.0)**
+
+只需在输出中包含状态标记，任务状态会自动更新：
+
+```
+开始实现任务 [TASK_STARTED: todo-app/T1.1.1]
+
+... 执行任务中 ...
+
+任务完成 [TASK_COMPLETED: todo-app/T1.1.1]
+```
+
+| 标记 | 状态 |
+|------|------|
+| `[TASK_STARTED: 项目/任务]` | in_progress |
+| `[TASK_COMPLETED: 项目/任务]` | completed |
+| `[TASK_BLOCKED: 项目/任务]` | blocked |
+| `[TASK_SKIPPED: 项目/任务]` | skipped |
+
+**手动更新**
 
 自然语言更新：
 ```
