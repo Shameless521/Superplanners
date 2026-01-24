@@ -10,6 +10,12 @@ export type FileResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
 
+export interface ArchiveInfo {
+  archiveId: string;
+  projectId: string;
+  archivedAt: string;
+}
+
 export class FileManager {
   private baseDir: string;
   private tasksDir: string;
@@ -253,6 +259,133 @@ export class FileManager {
       return {
         success: false,
         error: `删除失败: ${e instanceof Error ? e.message : String(e)}`,
+      };
+    }
+  }
+
+  /**
+   * 获取归档目录路径
+   */
+  private getArchiveDir(): string {
+    return join(this.tasksDir, '.archive');
+  }
+
+  /**
+   * 生成归档 ID
+   */
+  private generateArchiveId(projectId: string): string {
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 14);
+    return `${timestamp}-${projectId}`;
+  }
+
+  /**
+   * 归档项目
+   */
+  async archiveProject(
+    projectId: string
+  ): Promise<FileResult<{ archiveId: string }>> {
+    if (!(await this.projectExists(projectId))) {
+      return { success: false, error: `项目 ${projectId} 不存在` };
+    }
+
+    try {
+      const archiveDir = this.getArchiveDir();
+      await this.ensureDir(archiveDir);
+
+      const archiveId = this.generateArchiveId(projectId);
+      const archivePath = join(archiveDir, archiveId);
+      const projectDir = this.getProjectDir(projectId);
+
+      // 移动项目到归档目录
+      await rename(projectDir, archivePath);
+
+      return { success: true, data: { archiveId } };
+    } catch (e) {
+      return {
+        success: false,
+        error: `归档失败: ${e instanceof Error ? e.message : String(e)}`,
+      };
+    }
+  }
+
+  /**
+   * 列出所有归档
+   */
+  async listArchives(): Promise<ArchiveInfo[]> {
+    const archiveDir = this.getArchiveDir();
+
+    if (!(await this.fileExists(archiveDir))) {
+      return [];
+    }
+
+    try {
+      const entries = await readdir(archiveDir, { withFileTypes: true });
+      const archives: ArchiveInfo[] = [];
+
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+
+        // 解析归档 ID: YYYYMMDDHHMMSS-project-id
+        const match = entry.name.match(/^(\d{14})-(.+)$/);
+        if (match) {
+          const [, timestamp, projectId] = match;
+          const year = timestamp.slice(0, 4);
+          const month = timestamp.slice(4, 6);
+          const day = timestamp.slice(6, 8);
+          const hour = timestamp.slice(8, 10);
+          const min = timestamp.slice(10, 12);
+          const sec = timestamp.slice(12, 14);
+
+          archives.push({
+            archiveId: entry.name,
+            projectId,
+            archivedAt: `${year}-${month}-${day}T${hour}:${min}:${sec}Z`,
+          });
+        }
+      }
+
+      // 按时间倒序
+      archives.sort((a, b) => b.archivedAt.localeCompare(a.archivedAt));
+
+      return archives;
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * 恢复归档
+   */
+  async restoreArchive(archiveId: string): Promise<FileResult<{ projectId: string }>> {
+    const archiveDir = this.getArchiveDir();
+    const archivePath = join(archiveDir, archiveId);
+
+    if (!(await this.fileExists(archivePath))) {
+      return { success: false, error: `归档 ${archiveId} 不存在` };
+    }
+
+    // 解析 project ID
+    const match = archiveId.match(/^\d{14}-(.+)$/);
+    if (!match) {
+      return { success: false, error: `无效的归档 ID: ${archiveId}` };
+    }
+    const projectId = match[1];
+
+    // 检查项目是否已存在
+    if (await this.projectExists(projectId)) {
+      return { success: false, error: `项目 ${projectId} 已存在，无法恢复` };
+    }
+
+    try {
+      const projectDir = this.getProjectDir(projectId);
+      await rename(archivePath, projectDir);
+
+      return { success: true, data: { projectId } };
+    } catch (e) {
+      return {
+        success: false,
+        error: `恢复失败: ${e instanceof Error ? e.message : String(e)}`,
       };
     }
   }

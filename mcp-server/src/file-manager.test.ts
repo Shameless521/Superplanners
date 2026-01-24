@@ -238,4 +238,77 @@ projects: []
       expect(await fm.projectExists('test')).toBe(false);
     });
   });
+
+  describe('Archive', () => {
+    describe('archiveProject', () => {
+      it('should archive project to .archive directory', async () => {
+        const project: ProjectData = {
+          meta: {
+            project: '测试',
+            project_id: 'test',
+            created: '2025-01-23T10:00:00Z',
+            updated: '2025-01-23T10:00:00Z',
+            version: 1,
+          },
+          tasks: [],
+        };
+        await fm.writeProjectData('test', project);
+
+        const result = await fm.archiveProject('test');
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.archiveId).toContain('test');
+        }
+
+        // 原项目应该被删除
+        expect(await fm.projectExists('test')).toBe(false);
+      });
+    });
+
+    describe('listArchives', () => {
+      it('should list archived projects', async () => {
+        const project: ProjectData = {
+          meta: {
+            project: '测试',
+            project_id: 'test',
+            created: '2025-01-23T10:00:00Z',
+            updated: '2025-01-23T10:00:00Z',
+            version: 1,
+          },
+          tasks: [],
+        };
+        await fm.writeProjectData('test', project);
+        await fm.archiveProject('test');
+
+        const archives = await fm.listArchives();
+        expect(archives.length).toBeGreaterThan(0);
+        expect(archives[0].projectId).toBe('test');
+      });
+    });
+
+    describe('restoreArchive', () => {
+      it('should restore archived project', async () => {
+        const project: ProjectData = {
+          meta: {
+            project: '测试',
+            project_id: 'test',
+            created: '2025-01-23T10:00:00Z',
+            updated: '2025-01-23T10:00:00Z',
+            version: 1,
+          },
+          tasks: [],
+        };
+        await fm.writeProjectData('test', project);
+
+        const archiveResult = await fm.archiveProject('test');
+        expect(archiveResult.success).toBe(true);
+
+        if (archiveResult.success) {
+          const restoreResult = await fm.restoreArchive(archiveResult.data.archiveId);
+          expect(restoreResult.success).toBe(true);
+          expect(await fm.projectExists('test')).toBe(true);
+        }
+      });
+    });
+  });
 });
