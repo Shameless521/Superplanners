@@ -239,6 +239,56 @@ projects: []
     });
   });
 
+  describe('Markdown Rendering', () => {
+    it('should write markdown files when writing project data', async () => {
+      const project: ProjectData = {
+        meta: {
+          project: '测试项目',
+          project_id: 'test',
+          created: '2025-01-23T10:00:00Z',
+          updated: '2025-01-23T10:00:00Z',
+          version: 1,
+        },
+        tasks: [
+          { id: '1', title: '任务1', status: 'completed', priority: 'high' },
+        ],
+      };
+
+      await fm.writeProjectData('test', project, { renderMarkdown: true });
+
+      // 检查 Markdown 文件是否存在
+      const mdPath = join(testDir, 'tasks', 'test', 'tasks.md');
+      const mdExists = await fm['fileExists'](mdPath);
+      expect(mdExists).toBe(true);
+    });
+
+    it('should write task-plan.md when writing task plan', async () => {
+      const taskPlan: TaskPlan = {
+        meta: {
+          name: 'SuperPlanners',
+          version: '1.0.0',
+          updated: '2025-01-23T10:00:00Z',
+        },
+        projects: [
+          {
+            project: '测试项目',
+            project_id: 'test',
+            path: './test/tasks.yaml',
+            status: 'active',
+            updated: '2025-01-23T10:00:00Z',
+          },
+        ],
+      };
+
+      await fm.writeTaskPlan(taskPlan, { renderMarkdown: true });
+
+      // 检查 Markdown 文件是否存在
+      const mdPath = join(testDir, 'tasks', 'task-plan.md');
+      const mdExists = await fm['fileExists'](mdPath);
+      expect(mdExists).toBe(true);
+    });
+  });
+
   describe('Archive', () => {
     describe('archiveProject', () => {
       it('should archive project to .archive directory', async () => {

@@ -5,6 +5,8 @@ import { constants } from 'node:fs';
 import YAML from 'yaml';
 import type { ProjectData, TaskPlan } from './types.js';
 import { parseProjectData, parseTaskPlan } from './task-engine/parser.js';
+import { renderTaskPlan, renderProjectTasks } from './renderer.js';
+import { calculateTaskSummary, calculateProgress, formatProgressString } from './task-engine/progress-calculator.js';
 
 export type FileResult<T> =
   | { success: true; data: T }
@@ -14,6 +16,10 @@ export interface ArchiveInfo {
   archiveId: string;
   projectId: string;
   archivedAt: string;
+}
+
+export interface WriteOptions {
+  renderMarkdown?: boolean;
 }
 
 export class FileManager {
@@ -145,7 +151,8 @@ export class FileManager {
    */
   async writeProjectData(
     projectId: string,
-    data: ProjectData
+    data: ProjectData,
+    options: WriteOptions = {}
   ): Promise<FileResult<void>> {
     try {
       const projectDir = this.getProjectDir(projectId);
@@ -165,6 +172,15 @@ export class FileManager {
 
       await this.atomicWrite(filePath, yamlContent);
 
+      // 渲染 Markdown
+      if (options.renderMarkdown !== false) {
+        const summary = calculateTaskSummary(updatedData.tasks);
+        const progress = calculateProgress(updatedData.tasks);
+        const markdown = renderProjectTasks(updatedData, summary, progress);
+        const mdPath = join(projectDir, 'tasks.md');
+        await this.atomicWrite(mdPath, markdown);
+      }
+
       return { success: true, data: undefined };
     } catch (e) {
       return {
@@ -177,7 +193,10 @@ export class FileManager {
   /**
    * 写入任务计划索引
    */
-  async writeTaskPlan(data: TaskPlan): Promise<FileResult<void>> {
+  async writeTaskPlan(
+    data: TaskPlan,
+    options: WriteOptions = {}
+  ): Promise<FileResult<void>> {
     try {
       await this.ensureDir(this.tasksDir);
 
@@ -194,6 +213,24 @@ export class FileManager {
       const filePath = this.getTaskPlanPath();
 
       await this.atomicWrite(filePath, yamlContent);
+
+      // 渲染 Markdown
+      if (options.renderMarkdown !== false) {
+        // 同步获取所有进度
+        const progressMap = new Map<string, string>();
+        for (const project of updatedData.projects) {
+          const result = await this.readProjectData(project.project_id);
+          if (result.success) {
+            progressMap.set(project.project_id, formatProgressString(result.data.tasks));
+          } else {
+            progressMap.set(project.project_id, '?/?');
+          }
+        }
+
+        const markdown = renderTaskPlan(updatedData, (id) => progressMap.get(id) || '?/?');
+        const mdPath = join(this.tasksDir, 'task-plan.md');
+        await this.atomicWrite(mdPath, markdown);
+      }
 
       return { success: true, data: undefined };
     } catch (e) {
