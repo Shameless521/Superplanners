@@ -15,7 +15,7 @@
 
 - **Smart Task Decomposition**: Automatically break down complex requirements into Epic → Feature → Task → Subtask hierarchy
 - **Status Tracking**: Support for pending / in_progress / completed / blocked / skipped states
-- **Auto Status Update** (v0.4.0): Automatic task status synchronization via output markers
+- **Direct MCP Tool Call** (v0.5.0): Reliable task status update by calling `superplanners_update` directly
 - **Dependency Management**: Automatic cycle detection and intelligent next-task recommendations
 - **Progress Visualization**: Real-time progress calculation with Markdown reports
 - **MCP Integration**: Seamless Claude Code integration via MCP Tools
@@ -90,33 +90,25 @@ View specific project:
 
 ### 3. Update Tasks
 
-**Auto Status Update (v0.4.0)**
+**Direct MCP Tool Call (v0.5.0)**
 
-Simply include status markers in your output, and tasks will update automatically:
+Claude will automatically call `superplanners_update` MCP tool when task status changes:
 
 ```
-Starting task implementation [TASK_STARTED: todo-app/T1.1.1]
-
-... working on the task ...
-
-Task completed successfully [TASK_COMPLETED: todo-app/T1.1.1]
+1. Start task: Call superplanners_update(status="in_progress")
+2. Execute task: Do the actual work...
+3. Complete task: Call superplanners_update(status="completed")
 ```
 
-| Marker | Status |
-|--------|--------|
-| `[TASK_STARTED: project/task]` | in_progress |
-| `[TASK_COMPLETED: project/task]` | completed |
-| `[TASK_BLOCKED: project/task]` | blocked |
-| `[TASK_SKIPPED: project/task]` | skipped |
+| Status | Description |
+|--------|-------------|
+| `in_progress` | Task started |
+| `completed` | Task completed |
+| `blocked` | Task blocked |
+| `skipped` | Task skipped |
 
-**Manual Update**
+**Manual Update Command**
 
-Natural language:
-```
-Task T1.1.1 is completed
-```
-
-Or use command:
 ```
 /superplanners:update todo-app T1.1.1 completed
 ```
@@ -187,7 +179,7 @@ npm start
 
 - **智能任务分解**: 将复杂需求自动拆解为 Epic → Feature → Task → Subtask 层级结构
 - **状态追踪**: 支持 pending / in_progress / completed / blocked / skipped 五种状态
-- **自动状态更新** (v0.4.0): 通过输出标记自动同步任务状态
+- **直接调用 MCP 工具** (v0.5.0): 通过直接调用 `superplanners_update` 可靠地更新任务状态
 - **依赖管理**: 自动检测循环依赖，智能推荐下一个可执行任务
 - **进度可视化**: 实时计算进度百分比，生成 Markdown 格式的进度报告
 - **MCP 集成**: 无缝集成 Claude Code，通过 MCP Tools 进行交互
@@ -262,33 +254,25 @@ Claude 会自动：
 
 ### 3. 更新任务
 
-**自动状态更新 (v0.4.0)**
+**直接调用 MCP 工具 (v0.5.0)**
 
-只需在输出中包含状态标记，任务状态会自动更新：
+Claude 会在任务状态变化时自动调用 `superplanners_update` MCP 工具：
 
 ```
-开始实现任务 [TASK_STARTED: todo-app/T1.1.1]
-
-... 执行任务中 ...
-
-任务完成 [TASK_COMPLETED: todo-app/T1.1.1]
+1. 开始任务: 调用 superplanners_update(status="in_progress")
+2. 执行任务: 实际开发工作...
+3. 完成任务: 调用 superplanners_update(status="completed")
 ```
 
-| 标记 | 状态 |
+| 状态 | 说明 |
 |------|------|
-| `[TASK_STARTED: 项目/任务]` | in_progress |
-| `[TASK_COMPLETED: 项目/任务]` | completed |
-| `[TASK_BLOCKED: 项目/任务]` | blocked |
-| `[TASK_SKIPPED: 项目/任务]` | skipped |
+| `in_progress` | 任务开始 |
+| `completed` | 任务完成 |
+| `blocked` | 任务阻塞 |
+| `skipped` | 任务跳过 |
 
-**手动更新**
+**手动更新命令**
 
-自然语言更新：
-```
-任务 T1.1.1 完成了
-```
-
-或使用命令：
 ```
 /superplanners:update todo-app T1.1.1 completed
 ```

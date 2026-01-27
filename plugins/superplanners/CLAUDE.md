@@ -62,35 +62,49 @@ Epic → Feature → Task → Subtask
 /superplanners:next              # 获取下一个推荐任务
 ```
 
-## 任务状态自动更新规则（强制）
+## 任务状态更新规则（强制）
 
-当使用 SuperPlanners 管理任务时，**必须**遵循以下规则以确保任务状态自动同步：
+当使用 SuperPlanners 管理任务时，**必须**遵循以下规则以确保任务状态实时同步：
 
-### 标记格式
+### 核心规则：直接调用 MCP 工具
 
-| 场景 | 标记格式 | 触发状态 |
-|------|---------|---------|
-| 开始任务 | `[TASK_STARTED: {project_id}/{task_id}]` | in_progress |
-| 完成任务 | `[TASK_COMPLETED: {project_id}/{task_id}]` | completed |
-| 任务阻塞 | `[TASK_BLOCKED: {project_id}/{task_id}]` | blocked |
-| 跳过任务 | `[TASK_SKIPPED: {project_id}/{task_id}]` | skipped |
-
-### 使用示例
+**每当任务状态发生变化时，必须立即调用 `superplanners_update` MCP 工具**。这是唯一可靠的状态更新方式。
 
 ```
-开始实现登录功能 [TASK_STARTED: todo-app/T1.1.1]
+# 工具调用格式
+superplanners_update(
+  project_id: "项目ID",
+  task_id: "任务ID",
+  status: "in_progress" | "completed" | "blocked" | "skipped",
+  notes: "可选备注"
+)
+```
 
-... 执行任务中 ...
+### 状态变更时机
 
-登录功能已完成，测试通过 [TASK_COMPLETED: todo-app/T1.1.1]
+| 时机 | 状态值 | 必须动作 |
+|------|--------|---------|
+| 开始执行任务 | `in_progress` | 立即调用 `superplanners_update` |
+| 任务完成 | `completed` | 立即调用 `superplanners_update` |
+| 遇到阻塞 | `blocked` | 立即调用 `superplanners_update` |
+| 跳过任务 | `skipped` | 立即调用 `superplanners_update` |
+
+### 工作流程示例
+
+```
+1. 查看任务：调用 superplanners_status 获取当前任务
+2. 开始任务：立即调用 superplanners_update(status="in_progress")
+3. 执行任务：实际开发工作...
+4. 完成任务：立即调用 superplanners_update(status="completed")
+5. 继续下一个任务：重复步骤 2-4
 ```
 
 ### 重要说明
 
-1. **标记必须完整**：包含 project_id 和 task_id，用 `/` 分隔
-2. **每个任务都要标记**：开始时标记 STARTED，结束时标记 COMPLETED/BLOCKED/SKIPPED
-3. **Hook 自动处理**：输出标记后，系统会自动调用 `superplanners_update` 更新状态
-4. **兜底机制**：如果标记未生效，也可以直接调用 `superplanners_update` MCP 工具
+1. **必须主动调用工具**：不要依赖任何自动机制，每次状态变化都要显式调用 `superplanners_update`
+2. **立即调用**：状态变化后第一时间调用，不要等到多个任务完成后批量更新
+3. **文本标记（可选）**：可以在输出中添加 `[TASK_COMPLETED: project/task]` 等标记作为日志，但这**不会自动更新状态**，仅作为可读性辅助
+4. **兜底机制**：Stop hook 会在对话结束时检测未处理的标记并提醒，但这是最后的兜底，不应依赖
 
 ## 参考文档
 
