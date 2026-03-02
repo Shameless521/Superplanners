@@ -1,6 +1,6 @@
 {
   "name": "superplanners-mcp",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "智能任务分解与管理系统 - MCP Server",
   "type": "module",
   "main": "dist/index.js",

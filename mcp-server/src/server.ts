@@ -27,6 +27,22 @@ export const TOOLS: Tool[] = [
           type: 'string',
           description: '项目名称，默认从需求推断',
         },
+        tasks: {
+          type: 'array',
+          description: '任务列表。由 Claude 分解后传入，每个任务包含 id/title/description/priority/estimate/dependencies。不传则使用默认模板',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', description: '任务ID，如 "1", "1.1", "2"' },
+              title: { type: 'string', description: '任务标题' },
+              description: { type: 'string', description: '任务描述和验收标准' },
+              priority: { type: 'string', enum: ['critical', 'high', 'medium', 'low'], description: '优先级' },
+              estimate: { type: 'string', description: '预估工时，如 "1h", "2h"' },
+              dependencies: { type: 'array', items: { type: 'string' }, description: '依赖的任务ID列表' },
+            },
+            required: ['id', 'title'],
+          },
+        },
       },
       required: ['requirement'],
     },
@@ -190,7 +206,14 @@ async function handlePlan(fm: FileManager, args: unknown): Promise<unknown> {
   }
 
   const now = new Date().toISOString();
-  const tasks = generateDefaultTasks(requirement);
+  // 优先使用 Claude 分解的任务列表，未传则回退到默认模板
+  const tasks: Task[] = input.data.tasks
+    ? input.data.tasks.map(t => ({
+        ...t,
+        status: 'pending' as const,
+        priority: t.priority || 'medium',
+      }))
+    : generateDefaultTasks(requirement);
 
   // 创建项目数据
   const projectData: ProjectData = {

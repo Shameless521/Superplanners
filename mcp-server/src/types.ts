@@ -134,10 +134,22 @@ export type TaskPlan = z.infer<typeof TaskPlanSchema>;
 // MCP Tool Input Schemas
 // ============================================
 
+// superplanners_plan 任务输入项（比完整 TaskSchema 更宽松，仅需 id + title）
+export const TaskInputItemSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  priority: TaskPrioritySchema.default('medium'),
+  estimate: z.string().optional(),
+  dependencies: z.array(z.string()).optional(),
+});
+export type TaskInputItem = z.infer<typeof TaskInputItemSchema>;
+
 // superplanners_plan 输入
 export const PlanInputSchema = z.object({
   requirement: z.string().min(1),
   project_name: z.string().optional(),
+  tasks: z.array(TaskInputItemSchema).min(1).optional(),
 });
 export type PlanInput = z.infer<typeof PlanInputSchema>;
 

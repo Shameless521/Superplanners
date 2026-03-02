@@ -12,7 +12,7 @@ async function main() {
   const server = new Server(
     {
       name: 'superplanners-mcp',
-      version: '0.6.0',
+      version: '0.7.0',
     },
     {
       capabilities: {
