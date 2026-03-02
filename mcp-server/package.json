@@ -1,11 +1,12 @@
 {
   "name": "superplanners-mcp",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "智能任务分解与管理系统 - MCP Server",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "superplanners-mcp": "dist/index.js"
+    "superplanners-mcp": "dist/index.js",
+    "superplanners-cli": "dist/cli.js"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",

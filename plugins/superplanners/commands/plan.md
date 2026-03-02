@@ -30,9 +30,9 @@ argument-hint: "<requirement> [project_name]"
 - 任务之间需要明确依赖关系
 - 每个任务需要有可验证的完成标准
 
-## 任务执行工作流（自动状态更新）
+## 任务执行工作流（全自动状态更新）
 
-创建计划后，按以下工作流执行任务，状态会自动更新：
+创建计划后，按以下工作流执行任务，状态会**全自动**更新（无需调用任何 MCP 工具）：
 
 ### 开始任务时
 在输出中包含：`[TASK_STARTED: {project_id}/{task_id}]`
@@ -49,4 +49,4 @@ argument-hint: "<requirement> [project_name]"
 任务完成，代码已通过测试 [TASK_COMPLETED: my-project/1]
 ```
 
-系统会自动检测这些标记并更新 tasks.yaml 和 tasks.md 文件。
+Stop Hook 会在每轮回复结束时自动检测标记并通过 CLI 更新 tasks.yaml 和 tasks.md 文件。

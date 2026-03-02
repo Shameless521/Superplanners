@@ -273,14 +273,8 @@ async function handlePlan(fm: FileManager, args: unknown): Promise<unknown> {
     },
     next_task: nextTask,
     workflow_hint: {
-      message: '任务状态自动更新已启用。执行任务时请使用以下标记：',
-      markers: {
-        start_task: `[TASK_STARTED: ${projectId}/{task_id}]`,
-        complete_task: `[TASK_COMPLETED: ${projectId}/{task_id}]`,
-        block_task: `[TASK_BLOCKED: ${projectId}/{task_id}]`,
-        skip_task: `[TASK_SKIPPED: ${projectId}/{task_id}]`,
-      },
-      example: `开始任务时输出: [TASK_STARTED: ${projectId}/1]\n完成任务时输出: [TASK_COMPLETED: ${projectId}/1]`,
+      message: '任务状态会全自动更新，只需在输出中包含标记：',
+      example: `开始任务: [TASK_STARTED: ${projectId}/1]\n完成任务: [TASK_COMPLETED: ${projectId}/1]`,
     },
   };
 }
@@ -323,13 +317,8 @@ async function handleStatus(fm: FileManager, args: unknown): Promise<unknown> {
         : null,
       tasks,
       workflow_hint: {
-        message: '执行任务时请使用以下标记以自动更新状态：',
-        markers: {
-          start_task: `[TASK_STARTED: ${meta.project_id}/{task_id}]`,
-          complete_task: `[TASK_COMPLETED: ${meta.project_id}/{task_id}]`,
-          block_task: `[TASK_BLOCKED: ${meta.project_id}/{task_id}]`,
-          skip_task: `[TASK_SKIPPED: ${meta.project_id}/{task_id}]`,
-        },
+        message: '任务状态会全自动更新，只需在输出中包含标记：',
+        example: `开始任务: [TASK_STARTED: ${meta.project_id}/{task_id}]\n完成任务: [TASK_COMPLETED: ${meta.project_id}/{task_id}]`,
       },
     };
   }
@@ -373,9 +362,8 @@ async function handleStatus(fm: FileManager, args: unknown): Promise<unknown> {
     total_projects: projects.length,
     projects,
     workflow_hint: {
-      message: '执行任务时请使用状态标记以自动更新：',
-      format: '[TASK_STARTED|COMPLETED|BLOCKED|SKIPPED: {project_id}/{task_id}]',
-      example: '完成任务: [TASK_COMPLETED: my-project/1]',
+      message: '任务状态会全自动更新，只需在输出中包含标记：',
+      example: '开始任务: [TASK_STARTED: {project_id}/{task_id}]\n完成任务: [TASK_COMPLETED: {project_id}/{task_id}]',
     },
   };
 }
