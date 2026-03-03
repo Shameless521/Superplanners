@@ -59,7 +59,7 @@ Epic → Feature → Task → Subtask
 /superplanners:plan              # 生成任务计划
 /superplanners:status            # 显示状态和进度
 /superplanners:reset             # 归档清理或恢复历史任务
-/superplanners:skill             # 分析、生成或优化 Skills
+/superplanners:skill-helper      # 分析、生成或优化 Skills
 ```
 
 ## 任务状态更新规则（全自动）

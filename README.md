@@ -123,7 +123,7 @@ Claude will automatically call `superplanners_update` MCP tool when task status 
 ### 4. Skill Assistant (v0.9.0)
 
 ```
-/superplanners:skill
+/superplanners:skill-helper
 ```
 
 One command to:
@@ -134,7 +134,7 @@ One command to:
 5. Post-execution review
 
 ```
-/superplanners:skill my-skill    # Focus on a specific Skill only
+/superplanners:skill-helper my-skill    # Focus on a specific Skill only
 ```
 
 ### 5. Archive & Restore
@@ -311,7 +311,7 @@ Claude 会在任务状态变化时自动调用 `superplanners_update` MCP 工具
 ### 4. Skill 助手 (v0.9.0)
 
 ```
-/superplanners:skill
+/superplanners:skill-helper
 ```
 
 一条命令完成：
@@ -322,7 +322,7 @@ Claude 会在任务状态变化时自动调用 `superplanners_update` MCP 工具
 5. 执行后复审验证
 
 ```
-/superplanners:skill my-skill    # 只针对指定 Skill
+/superplanners:skill-helper my-skill    # 只针对指定 Skill
 ```
 
 ### 5. 归档与恢复
