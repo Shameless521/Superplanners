@@ -1,7 +1,7 @@
 {
   "name": "superplanners",
   "description": "Intelligent task decomposition and management system for Claude Code / MCP",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "author": {
     "name": "Shameless521",
     "email": ""
