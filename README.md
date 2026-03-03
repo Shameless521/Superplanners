@@ -17,6 +17,7 @@
 - **Custom Task Input** (v0.7.0): Pass your own task breakdown via `tasks` parameter in `superplanners_plan`
 - **Auto Status Update** (v0.6.0): Fully automatic task status tracking via Stop Hook — just include markers like `[TASK_COMPLETED: project/1]` in output
 - **Skill Assistant** (v0.9.0): One-stop Skill management — diagnose, generate, and optimize Claude Code Skills for your project
+- **Code Optimization Analysis** (v0.10.0): Scan project code health across 10 dimensions, auto-generate optimization task plans
 - **Status Tracking**: Support for pending / in_progress / completed / blocked / skipped states
 - **Dependency Management**: Automatic cycle detection and intelligent next-task recommendations
 - **Progress Visualization**: Real-time progress calculation with Markdown reports
@@ -137,7 +138,25 @@ One command to:
 /superplanners:skill-helper my-skill    # Focus on a specific Skill only
 ```
 
-### 5. Archive & Restore
+### 5. Code Optimization Analysis (v0.10.0)
+
+```
+/superplanners:optimize
+```
+
+Scan project code and generate optimization task plan:
+1. Detect project tech stack and scan scope
+2. Multi-dimension analysis (duplicate code, dead code, performance, structure, dependencies, etc.)
+3. Output structured analysis report
+4. Generate optimization tasks after user confirmation
+
+```
+/superplanners:optimize src/         # Scan specific directory
+/superplanners:optimize --dimensions=all   # Scan all 10 dimensions
+/superplanners:optimize --dimensions=duplicate,perf  # Scan specific dimensions
+```
+
+### 6. Archive & Restore
 
 ```
 /superplanners:reset cleanup todo-app  # Archive project
@@ -205,6 +224,7 @@ npm start
 - **自定义任务输入** (v0.7.0): 通过 `superplanners_plan` 的 `tasks` 参数传入自定义任务分解
 - **全自动状态更新** (v0.6.0): 通过 Stop Hook 全自动追踪任务状态，只需在输出中包含 `[TASK_COMPLETED: project/1]` 等标记
 - **Skill 助手** (v0.9.0): 一站式 Skill 管理——为项目诊断、生成和优化符合官方规范的 Claude Code Skills
+- **代码优化分析** (v0.10.0): 扫描项目代码健康度，支持 10 个分析维度，自动生成优化任务计划
 - **状态追踪**: 支持 pending / in_progress / completed / blocked / skipped 五种状态
 - **依赖管理**: 自动检测循环依赖，智能推荐下一个可执行任务
 - **进度可视化**: 实时计算进度百分比，生成 Markdown 格式的进度报告
@@ -325,7 +345,25 @@ Claude 会在任务状态变化时自动调用 `superplanners_update` MCP 工具
 /superplanners:skill-helper my-skill    # 只针对指定 Skill
 ```
 
-### 5. 归档与恢复
+### 5. 代码优化分析 (v0.10.0)
+
+```
+/superplanners:optimize
+```
+
+扫描项目代码，自动生成优化任务计划：
+1. 检测项目技术栈和扫描范围
+2. 多维度分析（重复代码、死代码、性能、结构、依赖等）
+3. 输出结构化分析报告
+4. 用户确认后生成优化任务
+
+```
+/superplanners:optimize src/         # 扫描指定目录
+/superplanners:optimize --dimensions=all   # 扫描全部 10 个维度
+/superplanners:optimize --dimensions=duplicate,perf  # 扫描指定维度
+```
+
+### 6. 归档与恢复
 
 ```
 /superplanners:reset cleanup todo-app  # 归档项目
