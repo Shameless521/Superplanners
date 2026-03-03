@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SuperPlanners 是一个面向 Claude Code / MCP 环境的智能任务分解与状态管理系统。核心定位是「文件驱动的任务状态机系统」。
 
-**当前状态**：v0.6.0 已发布，支持全自动任务状态更新。
+**当前状态**：v0.8.0 已发布，支持全自动任务状态更新、自定义任务分解和 Skill 诊断/生成/优化。
 
 ## 核心架构
 
@@ -59,6 +59,7 @@ Epic → Feature → Task → Subtask
 /superplanners:plan              # 生成任务计划
 /superplanners:status            # 显示状态和进度
 /superplanners:reset             # 归档清理或恢复历史任务
+/superplanners:skill             # 分析、生成或优化 Skills
 ```
 
 ## 任务状态更新规则（全自动）

@@ -13,9 +13,11 @@
 
 ## Features
 
-- **Smart Task Decomposition**: Automatically break down complex requirements into Epic → Feature → Task → Subtask hierarchy
+- **Smart Task Decomposition**: Automatically break down complex requirements into atomic tasks with priorities and dependencies
+- **Custom Task Input** (v0.7.0): Pass your own task breakdown via `tasks` parameter in `superplanners_plan`
+- **Auto Status Update** (v0.6.0): Fully automatic task status tracking via Stop Hook — just include markers like `[TASK_COMPLETED: project/1]` in output
+- **Skill Assistant** (v0.8.0): One-stop Skill management — diagnose, generate, and optimize Claude Code Skills for your project
 - **Status Tracking**: Support for pending / in_progress / completed / blocked / skipped states
-- **Direct MCP Tool Call** (v0.5.0): Reliable task status update by calling `superplanners_update` directly
 - **Dependency Management**: Automatic cycle detection and intelligent next-task recommendations
 - **Progress Visualization**: Real-time progress calculation with Markdown reports
 - **MCP Integration**: Seamless Claude Code integration via MCP Tools
@@ -113,7 +115,24 @@ Claude will automatically call `superplanners_update` MCP tool when task status 
 /superplanners:update todo-app T1.1.1 completed
 ```
 
-### 4. Archive & Restore
+### 4. Skill Assistant (v0.8.0)
+
+```
+/superplanners:skill
+```
+
+One command to:
+1. Scan project structure, tech stack, and existing Skills
+2. Run full diagnosis (quality audit + coverage analysis + freshness check)
+3. Generate action plan (optimize existing + create missing Skills)
+4. Execute after user confirmation
+5. Post-execution review
+
+```
+/superplanners:skill my-skill    # Focus on a specific Skill only
+```
+
+### 5. Archive & Restore
 
 ```
 /superplanners:reset cleanup todo-app  # Archive project
@@ -177,9 +196,11 @@ npm start
 
 ## 特性
 
-- **智能任务分解**: 将复杂需求自动拆解为 Epic → Feature → Task → Subtask 层级结构
+- **智能任务分解**: 将复杂需求自动拆解为原子任务，支持优先级和依赖关系
+- **自定义任务输入** (v0.7.0): 通过 `superplanners_plan` 的 `tasks` 参数传入自定义任务分解
+- **全自动状态更新** (v0.6.0): 通过 Stop Hook 全自动追踪任务状态，只需在输出中包含 `[TASK_COMPLETED: project/1]` 等标记
+- **Skill 助手** (v0.8.0): 一站式 Skill 管理——为项目诊断、生成和优化符合官方规范的 Claude Code Skills
 - **状态追踪**: 支持 pending / in_progress / completed / blocked / skipped 五种状态
-- **直接调用 MCP 工具** (v0.5.0): 通过直接调用 `superplanners_update` 可靠地更新任务状态
 - **依赖管理**: 自动检测循环依赖，智能推荐下一个可执行任务
 - **进度可视化**: 实时计算进度百分比，生成 Markdown 格式的进度报告
 - **MCP 集成**: 无缝集成 Claude Code，通过 MCP Tools 进行交互
@@ -277,7 +298,24 @@ Claude 会在任务状态变化时自动调用 `superplanners_update` MCP 工具
 /superplanners:update todo-app T1.1.1 completed
 ```
 
-### 4. 归档与恢复
+### 4. Skill 助手 (v0.8.0)
+
+```
+/superplanners:skill
+```
+
+一条命令完成：
+1. 扫描项目结构、技术栈和已有 Skill
+2. 全面诊断（质量审计 + 覆盖率分析 + 时效性检查）
+3. 生成行动计划（优化已有 + 补充缺失的 Skill）
+4. 用户确认后执行
+5. 执行后复审验证
+
+```
+/superplanners:skill my-skill    # 只针对指定 Skill
+```
+
+### 5. 归档与恢复
 
 ```
 /superplanners:reset cleanup todo-app  # 归档项目
