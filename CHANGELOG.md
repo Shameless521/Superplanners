@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.12.0
+
+- 修复任务状态更新不同步问题：handleUpdate 现在自动同步 task-plan.yaml + task-plan.md
+- 修复 Stop Hook 无法提取助手输出：extract_content 字段名改为 last_assistant_message
+- 所有任务完成时项目 status 自动从 active 变为 completed
+- 新增 4 个单元测试覆盖 task-plan 同步逻辑
+
 ## v0.11.0
 
 - 新增分析推衍命令 /superplanners:deduce，只读分析给出最佳实践方案

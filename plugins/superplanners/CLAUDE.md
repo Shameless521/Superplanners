@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SuperPlanners 是一个面向 Claude Code / MCP 环境的智能任务分解与状态管理系统。核心定位是「文件驱动的任务状态机系统」。
 
-**当前状态**：v0.11.0 已发布，支持全自动任务状态更新、自定义任务分解、Skill 诊断/生成/优化、代码优化分析和分析推衍。
+**当前状态**：v0.12.0 已发布，支持全自动任务状态更新、自定义任务分解、Skill 诊断/生成/优化、代码优化分析和分析推衍。
 
 ## 核心架构
 
