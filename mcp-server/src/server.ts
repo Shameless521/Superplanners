@@ -431,6 +431,27 @@ async function handleUpdate(fm: FileManager, args: unknown): Promise<unknown> {
     return { success: false, error: writeResult.error };
   }
 
+  // 同步更新 task-plan.yaml + task-plan.md
+  const taskPlanResult = await fm.readTaskPlan();
+  if (taskPlanResult.success && taskPlanResult.data) {
+    const allDone = updateResult.tasks.every(
+      (t) => t.status === 'completed' || t.status === 'skipped'
+    );
+    const now = new Date().toISOString();
+    const updatedProjects = taskPlanResult.data.projects.map((p) => {
+      if (p.project_id !== project_id) return p;
+      return {
+        ...p,
+        status: (allDone ? 'completed' : 'active') as 'completed' | 'active',
+        updated: now,
+      };
+    });
+    await fm.writeTaskPlan({
+      ...taskPlanResult.data,
+      projects: updatedProjects,
+    });
+  }
+
   // 计算返回值
   const summary = calculateTaskSummary(updateResult.tasks);
   const progress = calculateProgress(updateResult.tasks);

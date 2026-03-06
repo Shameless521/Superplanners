@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import YAML from 'yaml';
 import { createToolHandlers } from './server.js';
 
 describe('MCP Tools', () => {
@@ -199,6 +200,108 @@ tasks:
       })) as any;
 
       expect(result.success).toBe(false);
+    });
+
+    describe('task-plan sync', () => {
+      beforeEach(async () => {
+        // 创建 task-plan.yaml
+        await writeFile(
+          join(testDir, 'tasks', 'task-plan.yaml'),
+          `
+meta:
+  name: SuperPlanners
+  version: "1.0.0"
+  updated: "2025-01-23T10:00:00Z"
+
+projects:
+  - project_id: test-project
+    project: 测试项目
+    status: active
+    updated: "2025-01-23T10:00:00Z"
+    path: test-project/tasks.yaml
+`
+        );
+      });
+
+      it('should update task-plan.yaml updated field after task update', async () => {
+        await handlers.superplanners_update({
+          project_id: 'test-project',
+          task_id: '1',
+          status: 'in_progress',
+        });
+
+        const content = await readFile(
+          join(testDir, 'tasks', 'task-plan.yaml'),
+          'utf-8'
+        );
+        const taskPlan = YAML.parse(content);
+        const project = taskPlan.projects.find(
+          (p: any) => p.project_id === 'test-project'
+        );
+
+        expect(project.updated).not.toBe('2025-01-23T10:00:00Z');
+        expect(project.status).toBe('active');
+      });
+
+      it('should set project status to completed when all tasks done', async () => {
+        // 完成所有任务
+        await handlers.superplanners_update({
+          project_id: 'test-project',
+          task_id: '1',
+          status: 'completed',
+        });
+        await handlers.superplanners_update({
+          project_id: 'test-project',
+          task_id: '2',
+          status: 'completed',
+        });
+
+        const content = await readFile(
+          join(testDir, 'tasks', 'task-plan.yaml'),
+          'utf-8'
+        );
+        const taskPlan = YAML.parse(content);
+        const project = taskPlan.projects.find(
+          (p: any) => p.project_id === 'test-project'
+        );
+
+        expect(project.status).toBe('completed');
+      });
+
+      it('should keep project status active when only some tasks done', async () => {
+        await handlers.superplanners_update({
+          project_id: 'test-project',
+          task_id: '1',
+          status: 'completed',
+        });
+
+        const content = await readFile(
+          join(testDir, 'tasks', 'task-plan.yaml'),
+          'utf-8'
+        );
+        const taskPlan = YAML.parse(content);
+        const project = taskPlan.projects.find(
+          (p: any) => p.project_id === 'test-project'
+        );
+
+        expect(project.status).toBe('active');
+      });
+
+      it('should also regenerate task-plan.md after update', async () => {
+        await handlers.superplanners_update({
+          project_id: 'test-project',
+          task_id: '1',
+          status: 'completed',
+        });
+
+        const mdContent = await readFile(
+          join(testDir, 'tasks', 'task-plan.md'),
+          'utf-8'
+        );
+
+        expect(mdContent).toContain('测试项目');
+        expect(mdContent).toContain('SuperPlanners');
+      });
     });
   });
 

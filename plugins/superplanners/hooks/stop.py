@@ -114,22 +114,16 @@ def build_fallback_message(markers: list) -> str:
 
 
 def extract_content(input_data: dict) -> str:
-    """从 Stop Hook 输入中提取 Claude 的输出文本。"""
-    content = ''
-    for field in ['assistantTurnText', 'content', 'text', 'message']:
-        if field in input_data:
-            value = input_data[field]
-            if isinstance(value, str):
-                return value
-            elif isinstance(value, list):
-                for item in value:
-                    if isinstance(item, dict) and 'text' in item:
-                        content += item['text'] + '\n'
-                    elif isinstance(item, str):
-                        content += item + '\n'
-                if content:
-                    return content
-    return content
+    """从 Stop Hook 输入中提取 Claude 的输出文本。
+
+    Claude Code Stop Hook 的输入字段为 last_assistant_message（字符串）。
+    """
+    # Claude Code Stop Hook 标准字段
+    if 'last_assistant_message' in input_data:
+        value = input_data['last_assistant_message']
+        if isinstance(value, str):
+            return value
+    return ''
 
 
 def main():
